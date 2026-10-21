@@ -1,0 +1,279 @@
+=====================================================================
+  PATRONES ESTRUCTURALES - TeMU Express (特穆快递)
+  Equipo: Los DesubiAmericanos
+  Proceso de Desarrollo de Software - Prof. Jonathan Leonel Pepe
+=====================================================================
+
+PROPUESTA DE DISEÑO
+---------------------------------------------------------------------
+Propuesta de tres patrones estructurales desarrollados en las
+clases 10 y 11: Decorator, Bridge y Facade.
+Los nombres de clases y métodos son propuestos, no código implementado.
+
+Se consideran los dos TXT originales y las decisiones posteriores del
+equipo. La campaña queda en seis niveles, cada escenario con su propio
+tablero, personaje, voces, fondo y demás recursos. La nueva distribución
+prevalece sobre la cantidad y numeración de niveles del diseño v2.
+
+Estos patrones organizan relaciones entre clases y objetos. Se explica
+un uso posible de cada uno; su incorporación final depende de que el
+problema exista. No es necesario agregarlos todos por obligación.
+
+Herramienta elegida para trabajar las voces y audios:
+El equipo utilizará VoiceStudio (https://github.com/debpalash/VoiceStudio).
+Como flujo propuesto, las voces se preparan fuera del juego y los
+archivos resultantes se incorporan a los recursos de cada región.
+La reproducción durante la partida sigue a cargo del sistema de audio
+del juego. No se ha definido una integración en ejecución con la API
+de VoiceStudio ni se necesita asumirla para este diseño.
+
+
+ALCANCE ACTUAL: SEIS NIVELES
+---------------------------------------------------------------------
+  1. China.
+  2. EEUU.
+  3. Alemania.
+  4. Argentina - Chile.
+  5. Ecuador - Colombia.
+  6. Venezuela - Perú.
+Esta definición del equipo reemplaza la distribución anterior de
+12 niveles y tres niveles por región. Cada escenario conserva sus
+propios recursos. La distribución de mecánicas de la v2 debe revisarse
+para estos seis mapas; la reducción no define por sí sola ese reparto.
+
+
+1. DECORATOR - BONUS Y PENALIZACIONES DEL PUNTAJE
+---------------------------------------------------------------------
+Qué plantea la clase:
+Agregar funcionalidades envolviendo un objeto en otros objetos que
+comparten su interfaz y delegan en él antes o después de aportar
+su propia lógica. Permite combinar capas sin crear una subclase
+para cada combinación posible.
+
+Problema en el juego:
+El puntaje puede combinar una base, bonus por no usar Undo, bonus por
+alcanzar el par y penalización adicional de Undo en Argentina - Chile.
+Una clase por combinación multiplicaría las variantes de puntaje.
+
+Aplicación propuesta:
+Una interfaz CalculadorPuntaje declara calcular(resumen). PuntajeBase
+realiza el cálculo inicial. Cada decorador recibe otro CalculadorPuntaje
+y agrega su ajuste al resultado que obtiene de él.
+
+Participantes:
+  - Component: CalculadorPuntaje.
+  - Concrete Component: PuntajeBase.
+  - Base Decorator: DecoradorPuntaje, con una referencia al componente
+    envuelto y el mismo contrato calcular(resumen).
+  - Concrete Decorators: BonusSinUndo, BonusPorPar y RecargoUndo.
+  - Client: componente que prepara el resumen al finalizar el nivel.
+
+Ejemplo con los valores propuestos en los TXT:
+  Base: 1000 - 3*movimientos - 5*empujes - 100*usosUndo.
+  BonusSinUndo: suma 200 cuando usosUndo = 0.
+  BonusPorPar: suma 150 cuando movimientos <= par del nivel.
+  RecargoUndo: resta otros 100 por uso en Argentina - Chile.
+
+Para 80 movimientos, 20 empujes, 1 Undo y par 90:
+  - Base: 560.
+  - Sin bonus por no usar Undo; sí corresponde el bonus por par.
+  - Nivel habitual: 560 + 150 = 710.
+  - Argentina - Chile: 560 - 100 + 150 = 610.
+
+Composición propuesta para Argentina - Chile, de afuera hacia adentro:
+  BonusPorPar -> BonusSinUndo -> RecargoUndo -> PuntajeBase.
+Cada capa llama calcular(resumen) en la siguiente y aplica su ajuste.
+En los demás niveles se omite RecargoUndo.
+
+Para esta propuesta, la base se calcula sin recortar y se aplica
+max(0, resultado) una sola vez, al finalizar toda la cadena. Así se
+evita que recortes intermedios alteren las sumas y restas. El momento
+del recorte es una decisión propuesta que el grupo debe confirmar,
+junto con la fórmula y los valores definitivos.
+
+Justificación y límite:
+Permite activar y combinar ajustes sin modificar PuntajeBase.
+El resumen aporta datos; el cálculo no debe consumir Undo ni cambiar
+el estado de la partida. La penalización adicional corresponde al
+nivel 4 (Argentina - Chile), si se mantiene esa regla de la v2; no
+se extiende automáticamente a los niveles 5 y 6.
+
+La regla obligatoria de Undo permanece: últimos 15 movimientos,
+retroceso de 5 por uso y hasta 3 usos consecutivos. El decorador
+modifica el puntaje, no la cantidad de movimientos que se deshacen.
+
+Para defenderlo:
+"Partimos de un puntaje base y lo envolvemos con bonus o penalizaciones.
+Podemos combinar esos ajustes sin crear una clase por combinación."
+
+
+2. BRIDGE - PRESENTACIÓN DEL TABLERO Y REPRESENTACIÓN REGIONAL
+---------------------------------------------------------------------
+Qué plantea la clase:
+Separar dos dimensiones que varían de manera independiente en una
+abstracción y una implementación, relacionadas por composición.
+La abstracción contiene una referencia al contrato de implementación.
+
+Problema posible en el juego:
+Si se desarrolla el editor, habrá una vista de tablero para jugar y
+otra para editar. Ambas necesitan representar China, Estados Unidos,
+Alemania y los tres pares de países sudamericanos. Crear
+VistaJuegoChina, VistaEditorChina,
+VistaJuegoAlemania, VistaEditorAlemania, etc., mezcla dos dimensiones
+y multiplica clases por cada combinación.
+
+Aplicación propuesta:
+Separar el tipo de presentación del tablero de su representación
+regional. VistaTablero contiene un RenderizadorRegional y le delega
+el dibujo de los elementos. Las vistas concretas deciden qué mostrar
+y qué ayudas visuales incluir; el renderizador decide cómo dibujar
+los elementos con los recursos de la región.
+
+Participantes:
+  - Abstraction: VistaTablero, con mostrar(estadoDTO) y una referencia
+    a RenderizadorRegional.
+  - Refined Abstractions: VistaTableroJuego y VistaTableroEditor.
+  - Implementor: RenderizadorRegional, con dibujarPiso(),
+    dibujarPared(), dibujarDestino(), dibujarCaja() y dibujarPersonaje().
+  - Concrete Implementors: RenderizadorChina,
+    RenderizadorEstadosUnidos, RenderizadorAlemania y
+    RenderizadorSudamerica, configurado con los recursos propios de
+    Argentina - Chile, Ecuador - Colombia o Venezuela - Perú.
+  - Bridge: referencia de VistaTablero a RenderizadorRegional.
+
+Ejemplo:
+VistaTableroJuego y VistaTableroEditor pueden usar RenderizadorChina.
+Las dos muestran el tablero chino; la segunda añade ayudas del editor.
+Al seleccionar Alemania se utiliza su renderizador conservando la
+clase de vista. Cada región mantiene su tablero y personaje propios.
+
+Justificación y límite:
+Una nueva región agrega su renderizador; un nuevo tipo de vista agrega
+su abstracción refinada. No obliga a crear todas las combinaciones.
+El modelo conserva las reglas del Sokoban y la vista trabaja con DTO;
+el renderizador no decide si un empuje es válido.
+
+Abstract Factory crea la familia regional; Bridge organiza cómo las
+distintas vistas usan la representación de esa familia. Los productos
+visuales de la fábrica pueden proporcionar el renderizador regional.
+Las voces y la música siguen bajo el subsistema de audio.
+
+Si el editor no se elige y solo hay una presentación del tablero,
+conviene evaluar si una composición más simple alcanza. Tener varias
+regiones, por sí solo, no justifica agregar dos jerarquías.
+
+Para defenderlo:
+"Separamos la vista de juego o edición del dibujo de cada región.
+Así combinamos ambas dimensiones sin una clase por cada combinación."
+
+
+3. FACADE - PREPARACIÓN DE UN NIVEL
+---------------------------------------------------------------------
+Qué plantea la clase:
+Ofrecer una interfaz simplificada para utilizar un conjunto complejo
+de clases. La fachada coordina las llamadas; los subsistemas realizan
+sus tareas específicas.
+
+Problema en el juego:
+Iniciar un nivel requiere seleccionar la región, cargar el TXT,
+construir el tablero y preparar personaje, fondo, voces y sonidos.
+Si cada pantalla conoce todos esos pasos y su orden, queda acoplada
+a los detalles de creación y carga.
+
+Aplicación propuesta:
+Crear una PreparadorNivelFacade con prepararNivel(numero).
+El controlador realiza esa llamada y recibe el resultado de la
+preparación o un error controlado para informar a la vista.
+
+Participantes:
+  - Facade: PreparadorNivelFacade.
+  - Subsystems: catálogo de niveles, fábricas regionales, LectorNivel,
+    ConstructorNivelSokoban, cargador de recursos y GestorSonido.
+  - Client: controlador que atiende la selección o cambio de nivel.
+
+Ejemplo de coordinación interna:
+  1. Consultar qué archivo y qué región corresponden al nivel.
+  2. Seleccionar la fábrica regional y obtener su familia de productos.
+  3. Dirigir la lectura y construcción del nivel sobre su tablero.
+  4. Preparar los recursos gráficos y de audio necesarios.
+  5. Devolver el nivel preparado y activar el audio correspondiente
+     cuando la preparación haya terminado correctamente.
+
+El controlador comunica el resultado a la vista mediante los DTO
+acordados. La vista no necesita navegar por cada subsistema.
+Si falla la carga, no se debe reemplazar una partida válida por un
+nivel incompleto ni dejar recursos de audio abiertos.
+
+Justificación y límite:
+Concentra la coordinación repetida y simplifica al cliente.
+No concentra todas las responsabilidades del juego: las fábricas
+crean productos, el builder construye, el modelo aplica las reglas
+y GestorSonido coordina la reproducción del audio.
+
+Facade no reemplaza MVC ni convierte la fachada en el controlador
+de todas las acciones. Su alcance propuesto es preparar un nivel.
+Tampoco necesita ser Singleton: simplificar el acceso no exige
+una única instancia global.
+
+Para defenderlo:
+"El controlador pide preparar un nivel con una sola llamada.
+La fachada coordina la carga y la creación sin absorber las reglas
+ni el trabajo de los subsistemas."
+
+
+RELACIÓN CON EL DISEÑO REGIONAL
+---------------------------------------------------------------------
+Abstract Factory: crea el tablero, personaje, fondo, voces y demás
+productos de la región elegida.
+Decorator: combina ajustes de puntaje según los criterios acordados.
+Bridge: separa tipos de vista y representación regional, si se
+incorporan distintas presentaciones como juego y editor.
+Facade: coordina la preparación del nivel mediante una entrada simple.
+
+La v2 proponía acumular mecánicas. Su reparto entre los seis niveles
+queda por revisar; la apariencia regional no determina por sí sola
+qué reglas existen.
+
+
+PRIORIDAD PROPUESTA
+---------------------------------------------------------------------
+Decorator tiene un uso directo propuesto en los ajustes del puntaje.
+Facade resulta útil al integrar la preparación completa de niveles.
+Bridge depende de que haya dos dimensiones de variación reales.
+
+Se desarrollan estos tres patrones de clase, pero sus aplicaciones
+son propuestas. Ninguna confirma funcionalidades ya implementadas
+ni convierte las opciones pendientes en decisiones del equipo.
+
+
+FUENTES Y PENDIENTES
+---------------------------------------------------------------------
+Presentaciones del ZIP OneDrive_1_21-10-2026.zip:
+  - Clase 10: Decorator (págs. 10-14).
+  - Clase 11: Bridge (págs. 4-8), Facade (16-20).
+
+Documentos y aclaraciones del proyecto:
+  - Resumen_TP_TeMU_Express.txt: audio, puntaje, funcionalidades,
+    MVC y aplicaciones orientativas de patrones.
+  - Diseno_Niveles_TeMU_Express_v2.txt: progresión, reglas generales
+    y propuesta de penalización adicional de Undo en Argentina - Chile.
+    Su numeración de 12 niveles queda reemplazada por la decisión actual.
+  - Patrones_Creacionales_TeMU_Express.txt: nombres y responsabilidades
+    propuestos para las fábricas, el builder y el gestor de sonido.
+  - Aclaración del equipo y ejemplos visuales: familias completas
+    por región, incluyendo tablero, personaje, voces y fondo.
+  - Herramienta de audio elegida por el equipo: VoiceStudio.
+    Repositorio consultado: https://github.com/debpalash/VoiceStudio
+    Su documentación distingue la licencia de la aplicación de las
+    condiciones de modelos, voces y resultados generados. Usarlo no
+    acredita por sí mismo el dominio público de los assets exigido
+    en el resumen de la consigna; queda por verificar esa condición
+    para los recursos concretos elegidos.
+
+Por confirmar: fórmula final de puntaje, orden del recorte a cero,
+valores de bonus y penalizaciones, selección del editor, reparto de
+mecánicas entre los seis niveles, formatos de audio y recursos definitivos.
+
+Para el informe técnico, declarar la asistencia de IA utilizada
+en la elaboración de esta propuesta según la consigna del proyecto.
+=====================================================================

@@ -1,0 +1,297 @@
+=====================================================================
+  PROCESO DE DESARROLLO DE SOFTWARE (3.4.210) - Prof. Jonathan Pepe
+  TRABAJO INTEGRADOR: SOKOBAN
+  Equipo: "Los DesubiAmericanos"
+  Resumen de lo hablado y definido hasta ahora (18/10/2026)
+=====================================================================
+
+Estado: estamos en la etapa de IDEAS. Lo tecnico (diagrama de clases,
+formato de los .txt de niveles y codigo) se arma cuando tengamos todo
+el diseño del juego definido. Objetivo: arrancar de lleno el lunes.
+
+
+---------------------------------------------------------------------
+1. QUE PIDE EL ENUNCIADO (resumen de las consignas)
+---------------------------------------------------------------------
+
+Juego: version del Sokoban en JAVA + SWING (2D). No se puede usar JavaFX.
+
+Tablero (todos estos elementos tienen que aparecer en el juego):
+  - Paredes y espacios vacios
+  - Cajas normales, cajas fragiles y cajas llave
+  - Casillas de destino, terrenos resbaladizos y casilleros cerrojo
+  - Muros abiertos / cerrados
+  - Jugador
+
+Reglas:
+  - Niveles cargados desde archivos de texto (.txt) con caracteres.
+  - Movimiento con flechas. Solo se empuja (nunca se tira), una caja
+    por vez, no se atraviesan cajas, paredes ni muros cerrados.
+  - Caja normal: se empuja en la direccion del jugador. Sobre terreno
+    resbaladizo se desliza hasta chocar o llegar a un espacio vacio.
+  - Caja fragil: igual que la normal, pero tiene resistencia; cada
+    empuje la baja y en cero se rompe.
+  - Caja llave: igual que la normal, pero sobre un casillero cerrojo
+    abre los muros correspondientes.
+  - Undo: se pueden deshacer los ultimos 15 movimientos. Cada vez que
+    se presiona el boton vuelve 5 movimientos atras, con un maximo de
+    3 usos consecutivos.
+  - Victoria: todas las cajas en sus destinos -> siguiente nivel.
+  - Puntaje: al terminar cada nivel se muestra un resumen con
+    movimientos, empujes, usos de undo y puntaje final. La formula la
+    define el equipo.
+  - HUD: movimientos, empujes y nivel actual + botones visibles de
+    Undo y Reiniciar.
+  - Todo representado con imagenes + efectos de sonido.
+    TODOS LOS ASSETS DEBEN SER DE DOMINIO PUBLICO.
+  - Funcionalidades adicionales: minimo 2, que apliquen patrones de
+    diseño (nosotros vamos a hacer mas de 2).
+
+Entregables:
+  - Link al repo PUBLICO de GitHub con el codigo + README con las
+    instrucciones para ejecutar el juego.
+  - Video de gameplay mostrando TODAS las funcionalidades.
+  - Diagrama de clases en StarUML.
+  - Informe tecnico con las decisiones de diseño y su justificacion.
+  - El uso de IA esta permitido, pero HAY QUE DECLARARLO en el informe.
+
+Envio: por mail a jpepe@uade.edu.ar. Lo manda UN solo integrante, con
+copia al resto, indicando el nombre del equipo y el apellido y nombre
+de cada integrante.
+
+Evaluacion: aplicacion correcta de SOLID, GRASP, MVC y patrones GoF,
+mas creatividad, calidad del codigo, documentacion y diseño general.
+Cada integrante hace una DEFENSA individual (oral y/o escrita): todos
+tenemos que entender todo el codigo y todas las decisiones.
+
+
+---------------------------------------------------------------------
+2. LA IDEA DEL JUEGO (DEFINIDO)
+---------------------------------------------------------------------
+
+Tematica: un Sokoban que simula el traslado de paqueteria de una
+empresa de envios. El jugador es el que acomoda los paquetes en sus
+puntos de entrega.
+
+Marca: "TeMU Express", parodia de Temu.
+  - Tiene que ser una marca propia y parodica: el nombre y el logo
+    reales de Temu son marca registrada y no son de dominio publico.
+  - Traduccion al chino mandarin:
+      * 特穆快递  (Tèmù Kuàidì)  -> "TeMU Express / mensajeria"
+        (es la que usamos en los bocetos)
+      * Alternativa: 特穆速递 (Tèmù Sùdì) -> "entrega rapida", mas formal
+    Conviene que alguien que hable mandarin lo revise antes del logo.
+  - Logo: pendiente.
+
+Regiones: 4 regiones con 3 niveles cada una = 12 niveles.
+Cada 3 niveles se cambia de region.
+
+  Region       | Niveles | Ambientacion
+  -------------|---------|---------------------------------------------
+  China        | 1 - 3   | Templo / pagoda, montañas, faroles
+  EEUU         | 4 - 6   | Las Vegas de noche, estilo neon retro
+  Alemania     | 7 - 9   | Puerta de Brandeburgo al atardecer
+  Sudamerica   | 10 - 12 | Un nivel por cada par de paises:
+               |         |   - Argentina - Chile
+               |         |   - Ecuador - Colombia
+               |         |   - Peru - Venezuela
+
+Personajes: cada region tiene su propio personaje. El diseño lo define
+el grupo; un compañero esta haciendo los bocetos de cada uno.
+(Pendiente: ver los bocetos.)
+
+Mensajes "subliminales": cada region/nivel va a tener mensajes propios
+de cada pais. (Pendiente: Jesus los pasa este finde.)
+
+
+---------------------------------------------------------------------
+3. ESTILO VISUAL (DEFINIDO)
+---------------------------------------------------------------------
+
+  - Estetica ARCADE pixel-art, con estilo asiatico como base comun
+    (tipo arcade japones de los 80), pero representando cada region.
+  - Marco comun en todas las pantallas: alero de tejas violeta arriba
+    y columnas rojas con detalles dorados a los costados.
+  - HUD superior: puntaje (1UP), logo "特穆快递 TeMU EXPRESS" y region.
+  - Pantalla de juego: resolucion base 320x240 (4:3, estandar
+    arcade), escalada x3 o x4 en la ventana de Swing. Arriba se ve
+    el paisaje de la region completo; abajo, el tablero del Sokoban.
+  - A los costados del tablero:
+      * Izquierda: NIVEL, MOVIMIENTOS, EMPUJES.
+      * Derecha: indicador de usos de undo (3), botones UNDO y
+        REINICIAR.
+  - Las cajas son paquetes de carton con cinta y etiqueta naranja de
+    TeMU. Las casillas (paredes, piso y destinos) cambian segun la
+    region:
+      * China: paredes de laca roja con tejas turquesa, piso de piedra
+        clara, destinos = faroles rojos.
+      * EEUU: bloques con bordes de neon cian/rosa, piso con grilla
+        violeta, destinos = diamantes de neon.
+      * Alemania: bloques de arenisca con nieve, piso adoquinado,
+        destinos con marco dorado.
+  - Bocetos ya hechos (pantallas de muestra): fondos de China, EEUU y
+    Alemania, y una pantalla de nivel de muestra para cada una.
+    Son originales del grupo, asi que cumplen la consigna de dominio
+    publico. Las fotos usadas como referencia (el juego de Konami, la
+    imagen de Shutterstock, etc.) NO se pueden usar como assets.
+  - Pendiente: fondos y pantallas de Sudamerica (3 pares de paises).
+  - Personaje en los bocetos: es un repartidor generico provisorio
+    (solo marca el lugar); se reemplaza por los personajes del grupo.
+
+
+---------------------------------------------------------------------
+4. MECANICAS ESPECIALES (IDEAS - TODAVIA NO DEFINIDAS)
+---------------------------------------------------------------------
+
+Se definen despues de tener las tematicas y los mensajes de cada
+region. Ideas que surgieron:
+
+  - Portales: el personaje entra por uno y sale por el otro.
+    A decidir: si las cajas tambien pasan o solo el personaje.
+  - Pasillos angostos con numero limitado de intentos/pasadas.
+    A decidir: que pasa al agotarse (por ejemplo, se derrumba).
+  - Agujeros/baches donde se cae la caja.
+    A decidir: si la caja se pierde (nivel perdido) o si tapa el
+    agujero y queda como piso.
+  - Zonas aceleradoras: aceleran la caja pero el personaje NO puede
+    pasar por ellas.
+    A decidir: en que se diferencian del terreno resbaladizo
+    obligatorio (propuesta: tienen direccion fija).
+
+IMPORTANTE: estas mecanicas se SUMAN a las obligatorias del punto 1,
+no las reemplazan. Entre los 12 niveles tienen que aparecer todos los
+elementos obligatorios.
+
+Tambien hay que definir los huecos que deja el enunciado:
+  - El jugador, ¿tambien resbala o solo las cajas?
+  - Si se rompe una caja fragil, ¿se pierde el nivel?
+  - Si la caja llave sale del cerrojo, ¿se vuelven a cerrar los muros?
+  - ¿Cuando se reinicia el contador de 3 usos de undo?
+
+
+---------------------------------------------------------------------
+5. FUNCIONALIDADES ADICIONALES (A ELEGIR - QUEREMOS MAS DE 2)
+---------------------------------------------------------------------
+
+Idea: cada integrante es "dueño" de una funcionalidad (sirve para
+repartir el trabajo y para la defensa individual).
+
+  Funcionalidad                  | Idea en TeMU Express          | Patron           | Visto?
+  -------------------------------|-------------------------------|------------------|-------
+  Regiones tematicas             | Cada region cambia personaje, | Abstract Factory | SI
+                                 | fondo, sonidos y mensajes     |                  |
+  Terrenos especiales            | Portales, agujeros,           | Factory Method + | SI
+                                 | aceleradores, pasillos        | Polimorfismo +   |
+                                 |                               | Decorator        |
+  Editor de depositos            | El jugador arma y guarda su   | Builder +        | SI
+                                 | propio nivel                  | Factory Method   |
+  Power-ups logisticos           | "Carretilla" (tirar 1 vez),   | Decorator        | SI
+                                 | "Envio prioritario" (undo     |                  |
+                                 | gratis), "Botas antideslizantes" |               |
+  Clima por region               | Lluvia/nieve que cambia el    | Decorator        | SI
+                                 | piso                          |                  |
+  Ranking de repartidores        | Mejores puntajes guardados    | Singleton        | SI
+  Medallas / logros              | "Cero paquetes rotos",        | Observer         | Por ver
+                                 | "Entrega sin undo"            |                  |
+  Repeticion de la partida       | "Camara de seguridad del      | Command          | Por ver
+                                 | deposito"                     |                  |
+  Entrega contrarreloj           | Modo con tiempo limite        | State            | Por ver
+  Guardar y continuar            | Retomar desde la ultima region| Memento          | Por ver
+  Mapa de ruta                   | Pantalla entre regiones con el| (visual)         | -
+                                 | recorrido del paquete         |                  |
+
+Sugerencia: elegir 3 o 4 con patrones ya vistos para arrancar ya, y
+dejar 1 o 2 "por ver" para cuando Pepe los dé en clase.
+
+
+---------------------------------------------------------------------
+6. PUNTAJE (OPCIONES - A ELEGIR)
+---------------------------------------------------------------------
+
+  A) Penalizacion simple:
+     max(0, 1000 - 3*movimientos - 5*empujes - 100*usosUndo)
+
+  B) Estrellas segun un "par" de movimientos ideal por nivel
+     (3 estrellas si se iguala el par, 2 si se pasa hasta un 50%,
+     1 en el resto).
+
+  C) Base + bonus con patron Decorator (RECOMENDADA):
+     - Base: 1000 - 3*mov - 5*emp - 100*undo (minimo 0)
+     - Bonus sin undo: +200 si no se uso undo
+     - Bonus par: +150 si movimientos <= par del nivel
+     Ejemplo (80 mov, 20 empujes, 1 undo, par 90):
+       base = 1000 - 240 - 100 - 100 = 560
+       bonus sin undo: no aplica          -> 560
+       bonus par: 80 <= 90 -> +150        -> 710
+
+
+---------------------------------------------------------------------
+7. PATRONES Y PRINCIPIOS (CRITERIO GENERAL)
+---------------------------------------------------------------------
+
+Criterio: implementamos solo los patrones que ya vimos en clase. Los
+que faltan quedan anotados con el lugar del juego donde van a entrar,
+y se agregan cuando Pepe los dé.
+
+Vistos (clases 1 a 10): MVC, SOLID, los 9 GRASP, Singleton, Factory
+Method, Abstract Factory, Builder, Prototype, Adapter, Decorator.
+Por ver: Command, Memento, Observer, State, Strategy, Facade,
+Template Method, etc.
+
+Ideas de uso (orientativas, se ajustan cuando definamos el diseño):
+  - MVC: modelo (reglas del juego) / vista (Swing) / controlador
+    (teclas y botones). Vista y controlador se comunican por DTO.
+  - Polimorfismo (GRASP): cada tipo de caja y de terreno resuelve su
+    propio comportamiento, sin switch por tipo (OCP).
+  - Factory Method: crear cajas/terrenos segun el caracter del .txt.
+  - Builder: armar el nivel paso a paso al leer el .txt.
+  - Prototype: copias del nivel para Undo y Reiniciar.
+  - Singleton: gestor de sonido.
+  - Adapter: envolver la libreria de audio de Java.
+  - Decorator: puntaje con bonus y/o pasillos con usos limitados.
+  - Abstract Factory: las regiones (familia de imagenes, sonidos,
+    personaje y mensajes de cada pais).
+
+El diagrama de clases y el formato de los .txt se arman DESPUES de
+cerrar el diseño del juego.
+
+
+---------------------------------------------------------------------
+8. PLAN DE TRABAJO PROPUESTO (iterativo e incremental, como Scrum)
+---------------------------------------------------------------------
+
+  Etapa 0 (ahora)  Cerrar ideas: mensajes, personajes, mecanicas por
+                   region, funcionalidades extra y puntaje.
+  Iteracion 1      Repo en GitHub + MVC + carga de niveles .txt +
+                   movimiento + caja normal + victoria + HUD basico.
+  Iteracion 2      Caja fragil, caja llave, resbaladizo, cerrojos y
+                   muros, Undo y Reiniciar, puntaje y resumen.
+  Iteracion 3      Regiones, imagenes y sonidos, mecanicas especiales
+                   y funcionalidades extra.
+  Iteracion 4      Diagrama StarUML, informe tecnico (con declaracion
+                   de IA), README, video y envio por mail.
+
+En el repo, cada integrante trabaja en su rama y se integra con pull
+requests.
+
+Consejo de alcance: primero el nucleo con todo lo OBLIGATORIO andando
+en 2 o 3 niveles, despues sumar regiones y mecanicas de a una.
+
+
+---------------------------------------------------------------------
+9. PENDIENTES PARA ESTE FINDE / ANTES DEL LUNES
+---------------------------------------------------------------------
+
+  [ ] Mensajes "subliminales" de cada region/nivel (Jesus).
+  [ ] Bocetos de los personajes de cada region (compañero a cargo).
+  [ ] Buscar referencias de logistica para las mecanicas de cada region.
+  [ ] Definir las mecanicas especiales y en que region va cada una.
+  [ ] Elegir las funcionalidades adicionales y quien se encarga de cada una.
+  [ ] Elegir la formula de puntaje.
+  [ ] Logo de "TeMU Express / 特穆快递".
+  [ ] Fondos de Sudamerica (Argentina-Chile, Ecuador-Colombia, Peru-Venezuela).
+  [ ] Crear el repo publico en GitHub.
+
+Con eso definido, el lunes arrancamos con lo tecnico: diagrama de
+clases, formato de niveles y codigo.
+=====================================================================

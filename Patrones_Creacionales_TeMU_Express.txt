@@ -1,0 +1,310 @@
+=====================================================================
+  PATRONES DE CREACIÓN - TeMU Express (特穆快递)
+  Equipo: Los DesubiAmericanos
+  Proceso de Desarrollo de Software - Prof. Jonathan Leonel Pepe
+=====================================================================
+
+PROPUESTA DE DISEÑO
+---------------------------------------------------------------------
+Este documento explica cómo aplicar los cinco patrones creacionales
+vistos en las clases 8 y 9 al diseño de TeMU Express. Los nombres de
+clases son propuestos; no representan código ya implementado.
+
+Se consideran el resumen, el diseño de niveles v2 y las decisiones
+posteriores del equipo. La campaña actual de seis niveles reemplaza
+la cantidad y numeración anteriores; las mecánicas de la v2 sirven
+como referencia pendiente de redistribuir entre los nuevos mapas.
+
+También se incorpora la aclaración del equipo y sus tres ejemplos
+visuales: cada región tiene su propio tablero, personaje, voces,
+fondo y demás recursos. La familia regional abarca todos esos elementos.
+
+Los patrones creacionales organizan cómo se crean los objetos. Cada
+uno resuelve un problema diferente; no hace falta usarlos todos si
+el diseño final no los necesita.
+
+
+ALCANCE ACTUAL: SEIS NIVELES
+---------------------------------------------------------------------
+  1. China.
+  2. EEUU.
+  3. Alemania.
+  4. Argentina - Chile.
+  5. Ecuador - Colombia.
+  6. Venezuela - Perú.
+Esta definición del equipo reemplaza la distribución anterior de
+12 niveles y tres niveles por región. Cada escenario conserva sus
+propios recursos. La distribución de mecánicas de la v2 debe revisarse
+para estos seis mapas; la reducción no define por sí sola ese reparto.
+
+
+1. SINGLETON - GESTOR DE SONIDO
+---------------------------------------------------------------------
+Qué plantea la clase:
+Garantizar que una clase tenga una única instancia y ofrecer un punto
+de acceso global. Se utiliza un constructor privado y un método
+estático getInstance(), con creación diferida de la instancia.
+
+Problema en el juego:
+Si cada pantalla crea su propio gestor, podrían quedar varias músicas
+de fondo reproduciéndose a la vez y controles de volumen separados.
+
+Aplicación propuesta:
+Un GestorSonido compartido por el menú, la partida y el resumen del
+nivel. Centraliza la música activa, el volumen, las voces y los efectos.
+Los recursos de audio cambian según la región; el gestor los reproduce.
+
+Participantes:
+  - Singleton: GestorSonido.
+  - Acceso: GestorSonido.getInstance().
+  - Clientes: pantallas y controlador del juego.
+
+Ejemplo:
+Al pasar de China a Estados Unidos, se le pide al mismo gestor detener
+la música anterior y reproducir la de la nueva región. También recibe
+las voces del personaje de esa región. Los efectos de empuje pueden
+sonar sobre la música; lo único es el gestor, no los recursos de audio.
+
+Justificación y límite:
+Unifica el control del audio durante la ejecución. No convierte al
+tablero, al jugador ni a las cajas en objetos únicos. Su acceso global
+genera dependencia compartida, por lo que conviene limitarlo al audio.
+
+Para defenderlo:
+"Usamos Singleton para tener un único gestor de sonido que comparten
+todas las pantallas y evitar músicas de fondo superpuestas."
+
+
+2. FACTORY METHOD - CREACIÓN DE CAJAS
+---------------------------------------------------------------------
+Qué plantea la clase:
+Definir una operación de creación común y dejar que los creadores
+concretos decidan qué producto instanciar.
+
+Problema en el juego:
+El lector de niveles necesita crear cajas normales, frágiles y llave
+sin quedar acoplado a los constructores de cada tipo.
+
+Aplicación propuesta:
+Un CreadorCaja declara crearCaja(), que devuelve el producto Caja.
+Cada creador concreto implementa esa operación.
+
+Participantes:
+  - Creator: CreadorCaja.
+  - Concrete Creators: CreadorCajaNormal, CreadorCajaFragil y
+    CreadorCajaLlave.
+  - Product: Caja.
+  - Concrete Products: CajaNormal, CajaFragil y CajaLlave.
+  - Client: LectorNivel.
+
+Ejemplo:
+Al encontrar el carácter correspondiente a una caja frágil, el lector
+consulta el creador registrado para ese carácter y llama crearCaja().
+El creador devuelve una CajaFragil con su resistencia inicial.
+La tabla de caracteres se definirá con el formato de niveles.
+
+Justificación y límite:
+El lector trabaja con Caja y CreadorCaja. Para sumar otro tipo, se
+agregan su producto, su creador y su registro en la configuración.
+Un único método con un switch que hace todos los new sería una
+fábrica simple; aquí la creación se delega en creadores concretos,
+como en la estructura presentada en clase.
+
+La resistencia de la caja frágil sigue pendiente de confirmación:
+los 3 empujes de la v2 son una propuesta, no un valor definitivo.
+El patrón crea las cajas; las reglas de empuje pertenecen al modelo.
+
+Para defenderlo:
+"El lector pide una caja a un creador. Cada creador concreto decide
+qué tipo de caja construir, sin mezclar esa decisión con la lectura."
+
+
+3. ABSTRACT FACTORY - FAMILIAS DE ELEMENTOS REGIONALES
+---------------------------------------------------------------------
+Qué plantea la clase:
+Crear familias de productos relacionados mediante una interfaz común,
+sin que el cliente dependa de las clases concretas de cada familia.
+
+Problema en el juego:
+Cada región tiene su propio tablero, personaje, voces, fondo, música,
+efectos y mensajes. Esos elementos deben combinar entre sí.
+Crearlos por separado podría mezclar elementos de distintas regiones.
+
+Aplicación propuesta:
+Una FabricaRegion ofrece crearTablero(), crearPersonaje(), crearFondo(),
+crearVoces(), crearSonidos() y crearMensajes(). Cada fábrica concreta
+entrega la familia completa correspondiente a su región.
+
+crearTablero() entrega un tablero base con los recursos visuales de
+la región para pisos, paredes, destinos y demás casillas. El Builder
+lo completa con la distribución del mapa leída del TXT de cada nivel.
+Así, cada uno de los seis escenarios conserva su tablero y su mapa.
+
+Participantes:
+  - Abstract Factory: FabricaRegion.
+  - Concrete Factories: FabricaChina, FabricaEstadosUnidos,
+    FabricaAlemania y FabricaSudamerica. Esta última recibe la variante
+    del par de países para producir su familia específica de recursos.
+  - Abstract Products: TableroRegional, PersonajeRegional,
+    FondoRegional, VocesRegionales, SonidosRegionales y
+    MensajesRegionales.
+  - Concrete Products: las versiones regionales de cada producto;
+    por ejemplo, TableroChina, PersonajeChina, FondoChina, VocesChina,
+    SonidosChina y MensajesChina; lo mismo para las otras regiones.
+  - Client: componente que prepara el nivel y su presentación.
+
+Ejemplo:
+Los ejemplos visuales muestran cómo se diferencian las familias:
+  - China: fondo de templo, tablero con paredes rojas, piso claro y
+    destinos con forma de farol; su personaje y sus voces regionales.
+  - Estados Unidos: fondo de Las Vegas, tablero de neón cian y rosa,
+    piso violeta y destinos de diamante; su personaje y sus voces.
+  - Alemania: fondo de la Puerta de Brandeburgo, tablero de bloques
+    de arenisca, piso adoquinado y destinos dorados; su personaje
+    y sus voces regionales.
+Los colores y formas se observan en los bocetos. Las voces no pueden
+evaluarse en imágenes: su existencia por región la define el equipo.
+
+Al pasar del nivel 1 (China) al 2 (EEUU), se selecciona
+FabricaEstadosUnidos. Se obtiene su tablero, personaje, fondo, voces,
+sonidos y mensajes. El Builder completa ese tablero con el mapa del
+nivel 2. Para el nivel 3 se selecciona FabricaAlemania.
+El cliente utiliza los contratos comunes de los productos.
+
+En Sudamérica, la familia admite las variantes por nivel:
+  - 4: Argentina - Chile.
+  - 5: Ecuador - Colombia.
+  - 6: Venezuela - Perú.
+Se propone configurar FabricaSudamerica con el par correspondiente.
+Cada variante entrega su propio tablero, personaje, voces y demás
+recursos, en lugar de utilizar una única familia visual para los tres.
+
+Justificación y límite:
+Permite cambiar una familia completa conservando su coherencia.
+Factory Method selecciona aquí el tipo de una caja; Abstract Factory
+produce varios tipos de productos relacionados por una misma región.
+
+VocesRegionales contiene las voces del personaje; SonidosRegionales,
+la música y los efectos. GestorSonido se encarga de reproducir esos
+recursos. Tener un gestor único permite usar muchas voces y músicas.
+Los assets, personajes, grabaciones y mensajes finales siguen sujetos
+a las definiciones del grupo.
+
+El equipo eligió VoiceStudio para trabajar las voces y audios:
+https://github.com/debpalash/VoiceStudio
+Se propone preparar allí las voces e incorporar los archivos
+resultantes a VocesRegionales. La fábrica entrega los recursos de
+cada región y GestorSonido los reproduce durante la partida.
+Este flujo no presupone conectar el juego con la API de VoiceStudio.
+
+Las variantes regionales de tablero comparten las reglas generales
+del Sokoban. Pueden reutilizar la misma lógica y recibir distintos
+recursos; no hace falta duplicar el motor del juego por cada país.
+La v2 proponía acumular mecánicas; el reparto y la progresión para
+los seis niveles deben confirmarse con el nuevo alcance.
+
+Para defenderlo:
+"Cada fábrica regional crea su tablero, personaje, fondo, voces y
+demás recursos como una familia compatible. El mapa concreto de
+cada nivel se arma con Builder."
+
+
+4. BUILDER - CONSTRUCCIÓN DEL NIVEL
+---------------------------------------------------------------------
+Qué plantea la clase:
+Construir un objeto complejo paso a paso. Hay un producto, un contrato
+Builder y un constructor concreto. Un Director puede ordenar los pasos.
+
+Problema en el juego:
+Un nivel reúne dimensiones, terrenos, cajas, jugador y conexiones
+especiales. Resolver todo con un constructor enorme sería difícil de
+leer y permitiría omitir partes necesarias.
+
+Aplicación propuesta:
+Recibir el tablero base creado por la fábrica regional, darle las
+dimensiones del mapa y colocar sus elementos y conexiones paso a paso.
+Entregar el nivel después de validarlo.
+
+Participantes:
+  - Product: Nivel.
+  - Builder: ConstructorNivel.
+  - Concrete Builder: ConstructorNivelSokoban.
+  - Director: LectorNivel, que interpreta el archivo de texto.
+  - Pasos propuestos: iniciarTablero(tableroRegional, dimensiones),
+    agregarTerreno(), agregarCaja(), colocarJugador(),
+    vincularElementos() y obtenerNivel().
+
+Ejemplo:
+Para un nivel de Alemania se obtiene el tablero de FabricaAlemania.
+El lector obtiene las dimensiones del mapa, inicia el builder con ese
+tablero, recorre los caracteres, pide las cajas a sus creadores y
+agrega cada elemento. Finalmente vincula llaves, cerrojos, muros y
+portales cuando corresponda.
+
+Validaciones propuestas antes de entregar el nivel:
+  - Filas del mismo ancho y caracteres reconocidos.
+  - Un único jugador y posiciones iniciales válidas.
+  - Portales emparejados y conexiones de cerrojos/muros válidas.
+  - Una caja adicional por agujero, además de las cajas para destinos,
+    según la regla del diseño v2.
+Estas validaciones no demuestran que el mapa tenga solución.
+
+Justificación y límite:
+Separa la interpretación del TXT de la construcción del objeto Nivel.
+Si se elige implementar el editor, podrá usar los mismos pasos de
+construcción sin depender de la lectura de un archivo.
+Builder arma el conjunto; Factory Method crea sus cajas individuales.
+Abstract Factory aporta la variante regional del tablero y sus recursos;
+Builder define la distribución específica del nivel sobre ese tablero.
+
+Para defenderlo:
+"El nivel se construye por pasos y se valida al final. Así evitamos
+un constructor enorme y podemos reutilizar el armado desde el editor."
+
+
+RELACIÓN ENTRE LOS CINCO PATRONES
+---------------------------------------------------------------------
+1. Se selecciona la fábrica regional y se obtienen su tablero,
+   personaje, fondo, voces, sonidos y mensajes.
+2. El lector dirige al Builder para completar ese tablero y construir
+   el nivel con la distribución del mapa leída desde un TXT.
+3. Al necesitar cajas, utiliza los Factory Methods de sus creadores.
+4. El gestor Singleton reproduce las voces, música y efectos de la
+   familia regional durante la ejecución.
+
+Cada patrón tiene una responsabilidad: instancia única, creación de
+productos, creación de familias, armado por pasos o copia de objetos.
+Esta es una propuesta para integrar al futuro modelo, vista Swing y
+controlador; no implica que esas funcionalidades estén implementadas.
+
+
+FUENTES Y DECISIONES PENDIENTES
+---------------------------------------------------------------------
+Material del proyecto:
+  - Resumen_TP_TeMU_Express.txt: apartados 1, 2, 5 y 7.
+  - Diseno_Niveles_TeMU_Express_v2.txt: progresión de mecánicas,
+    reglas por región, reglas generales y pendientes del grupo.
+    Su numeración de 12 niveles queda reemplazada por la decisión actual.
+  - Aclaración del equipo: cada región tiene su propio tablero,
+    personaje, voces y demás recursos; ejemplos visuales de China,
+    Estados Unidos y Alemania aportados en el chat.
+
+Presentaciones del ZIP OneDrive_1_21-10-2026.zip:
+  - Clase 8: Singleton (págs. 13-17), Factory Method (19-23) y
+    Abstract Factory (25-29).
+  - Clase 9: Builder (págs. 4-8) y Prototype (10-14).
+  - Clases 10 y 11: patrones estructurales, fuera del alcance pedido.
+  - Clase 12: Observer, Strategy y Command, de comportamiento.
+
+Pendientes que esta propuesta no da por cerrados:
+  - Reparto y progresión de las mecánicas entre los seis niveles.
+  - Resistencia inicial de las cajas frágiles.
+  - Regla definitiva de cierre de muros al retirar la caja llave.
+  - Fórmula de puntaje y tratamiento completo de los contadores.
+  - Formato de caracteres y metadatos de los archivos de niveles.
+  - Assets, personajes y mensajes finales de cada región.
+  - Selección definitiva de funcionalidades adicionales, como el editor.
+
+Nota para el informe técnico: declarar la asistencia de IA utilizada
+para preparar esta propuesta, conforme al resumen de la consigna.
+=====================================================================

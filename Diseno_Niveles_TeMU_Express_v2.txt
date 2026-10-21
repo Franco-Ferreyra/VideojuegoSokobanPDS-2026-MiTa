@@ -1,0 +1,168 @@
+=====================================================================
+  DOCUMENTO DE DISEÑO DE NIVELES - "TeMU Express" (特穆快递)  v2
+  Relación entre mecánicas de juego y problemáticas reales
+  Equipo: Los DesubiAmericanos
+=====================================================================
+
+IDEA CENTRAL
+---------------------------------------------------------------------
+Cada región representa una traba real que sufre un paquete de TeMU al
+llegar a ese país. La traba se convierte en una mecánica del Sokoban.
+Al iniciar cada región se muestra un mensaje que cuenta el "problema
+real", y la mecánica lo hace jugable.
+
+Las mecánicas SE ACUMULAN: cada región estrena una mecánica nueva y
+mantiene las anteriores. Así la dificultad crece y el último nivel
+(12) es el gran final, donde el paquete tiene que sobrevivir a todas
+las aduanas juntas.
+
+
+PROGRESIÓN DE MECÁNICAS
+---------------------------------------------------------------------
+ Nivel | Región              | Mecánica que estrena      | Arrastra de antes
+ ------|---------------------|---------------------------|------------------------------
+ 1-3   | China               | Caja llave + cerrojo +    | (base: paredes, piso, destinos,
+       |                     | muros abiertos/cerrados   |  cajas normales)
+ 4-6   | Estados Unidos      | Caja frágil               | Llave/cerrojo/muros
+ 7-9   | Alemania            | Agujeros                  | Llave/cerrojo, caja frágil
+ 10    | Argentina - Chile   | Terreno resbaladizo +     | Todo lo anterior
+       |                     | "cupo" de undo (puntaje)  | (en dosis chicas)
+ 11    | Ecuador - Colombia  | Cinta del escáner         | Todo lo anterior
+       |                     | (zona aceleradora)        | (en dosis chicas)
+ 12    | Perú - Venezuela    | Portales                  | TODO: nivel final
+       |                     |                           |
+
+Con esto aparecen TODOS los elementos obligatorios del enunciado:
+paredes, espacios vacíos, cajas normales, frágiles y llave, destinos,
+terreno resbaladizo, casilleros cerrojo, muros abiertos/cerrados y
+jugador.
+
+En China conviene que el nivel 1 sea un tutorial (solo cajas normales)
+y que la llave/cerrojo aparezca en los niveles 2 y 3.
+
+
+CHINA (Niveles 1-3)
+---------------------------------------------------------------------
+* Problema real: El gobierno bloquea compras extranjeras y exige tu
+  documento de identidad para todo.
+* En el juego: Hay "muros cerrados" que no te dejan avanzar. Para
+  abrirlos, el jugador debe empujar una "caja llave" hasta un
+  casillero "cerrojo".
+* Significado: El muro cerrado es el bloqueo de la aduana. Llevar la
+  llave al cerrojo simula entregar tu documento de identidad para que
+  el gobierno libere tu paquete.
+* Regla propuesta: los muros quedan abiertos mientras la caja llave
+  esté sobre el cerrojo. Si la sacás, se vuelven a cerrar ("te
+  retienen el documento otra vez"), salvo que haya algo parado en el
+  muro.
+
+
+ESTADOS UNIDOS (Niveles 4-6)
+---------------------------------------------------------------------
+* Problema real: Controles sorpresa de agencias federales que a veces
+  confiscan o dañan productos.
+* En el juego: Se usan "cajas frágiles". Cada vez que empujás una,
+  pierde resistencia. Si llega a cero, se rompe y perdés el nivel.
+* Significado: Representa la aduana manoseando e inspeccionando de
+  más tus compras delicadas (como electrónica) hasta arruinarlas.
+* Regla: cuando la caja se rompe, el nivel queda perdido y se ofrece
+  usar UNDO o REINICIAR. La resistencia se ve sobre la caja (por
+  ejemplo, con grietas) para que el jugador pueda planificar.
+* Sigue habiendo llave/cerrojo de China en algún nivel.
+
+
+ALEMANIA (Niveles 7-9)
+---------------------------------------------------------------------
+* Problema real: Te cobran impuestos altísimos y tarifas aduaneras que
+  a veces cuestan más que el producto mismo.
+* En el juego: Hay "agujeros" en el piso. Para cruzar, tenés que
+  empujar una caja adentro para taparlo y que sirva de puente.
+* Significado: La caja que perdés en el agujero es el dinero de los
+  impuestos que te obligan a pagar (sacrificar) para salvar el resto
+  de tu envío.
+* Reglas:
+  - El jugador NO puede pisar un agujero abierto.
+  - La caja que cae desaparece y el agujero pasa a ser piso normal.
+  - Los niveles con agujeros traen UNA CAJA DE MÁS por cada agujero,
+    para que se pueda cumplir la victoria ("todas las cajas en sus
+    destinos").
+* Siguen apareciendo cajas frágiles y llave/cerrojo.
+
+
+SUDAMÉRICA (Niveles 10-12)
+---------------------------------------------------------------------
+Cada nivel estrena una mecánica y además reutiliza las anteriores en
+dosis chicas, para que sea un desafío y no solo una presentación.
+
+Nivel 10: Argentina - Chile
+* Problema real: Cero control sobre los trámites y te castigan duro
+  por cualquier error en el papeleo (cupos de compra).
+* En el juego: "Terrenos resbaladizos" donde la caja patina sola hasta
+  chocar o llegar a terreno normal. El jugador NO resbala.
+  Además, en esta región cada uso de UNDO penaliza el DOBLE en el
+  puntaje final.
+* Significado: La caja patinando es el descontrol aduanero. El undo
+  "caro" simula los cupos de compra: equivocarte te sale carísimo.
+* Por qué así: el enunciado fija la regla del undo (últimos 15
+  movimientos, 5 por uso, hasta 3 usos seguidos). Si la cambiáramos,
+  no cumpliríamos el requisito. Por eso el castigo va al puntaje y el
+  undo funciona igual que en el resto del juego. (Técnicamente se hace
+  con un Decorator sobre el puntaje.)
+
+Nivel 11: Ecuador - Colombia
+* Problema real: La aduana retiene paquetes para inspeccionarlos y el
+  comprador no puede hacer nada.
+* En el juego: "Cintas del escáner" (zonas aceleradoras). Cada cinta
+  tiene una dirección fija (→ ← ↑ ↓). La caja que entra es arrastrada
+  en esa dirección hasta salir de la cinta o chocar, y el jugador NO
+  puede caminar sobre la cinta.
+* Significado: Tu paquete entra a la cinta de inspección de la aduana
+  y se lo llevan para el lado que ellos quieren. Vos te quedás mirando
+  desde afuera sin poder tocarlo.
+* Diferencia con el resbaladizo: en el resbaladizo la caja sigue la
+  dirección del EMPUJE; en la cinta, la dirección la impone la CINTA.
+
+Nivel 12: Perú - Venezuela (NIVEL FINAL)
+* Problema real: El correo normal no sirve o tiene trabas absurdas,
+  así que la gente usa casilleros privados en Miami para esquivar la
+  aduana.
+* En el juego: "Portales" de a pares. La CAJA que entra por un portal
+  aparece en el otro, saltándose las paredes.
+* Significado: Simula usar una empresa privada que cruza tus paquetes
+  por una "puerta trasera" para evitar el bloqueo del país.
+* Reglas:
+  - Solo pasan las cajas; el jugador no usa los portales.
+  - La caja sale del portal de destino y sigue en la misma dirección
+    del empuje.
+  - Si la casilla de salida está ocupada (pared, caja o muro cerrado),
+    el empuje no se realiza: la caja no se mueve.
+* Como es el último nivel, combina todo: llave/cerrojo, caja frágil,
+  agujero, resbaladizo, cinta y portales. Es el "jefe final" del
+  paquete.
+
+
+REGLAS GENERALES (valen para todo el juego)
+---------------------------------------------------------------------
+* Movimiento con flechas. Solo se empuja (nunca se tira), una caja por
+  vez, sin atravesar cajas, paredes ni muros cerrados.
+* UNDO: guarda los últimos 15 movimientos. Cada uso vuelve 5 atrás,
+  con un máximo de 3 usos seguidos. El contador se reinicia al hacer
+  un movimiento nuevo.
+* REINICIAR: vuelve el nivel a su estado inicial.
+* Victoria: todas las cajas en sus destinos → siguiente nivel. Cada 3
+  niveles cambia la región (salvo Sudamérica, donde cada nivel es un
+  par de países distinto, dentro de la misma región).
+* Al terminar cada nivel se muestra un resumen: movimientos, empujes,
+  usos de undo y puntaje final.
+
+
+PENDIENTES A CONFIRMAR POR EL GRUPO
+---------------------------------------------------------------------
+[ ] Regla de los muros cuando la caja llave sale del cerrojo
+    (propuesta: se vuelven a cerrar).
+[ ] Resistencia de la caja frágil (propuesta: 3 empujes).
+[ ] Fórmula de puntaje base (propuesta: opción C del resumen anterior)
+    y cuánto penaliza el undo "doble" de Argentina - Chile.
+[ ] Textos de los mensajes que se muestran al iniciar cada región.
+[ ] Diseño de los 12 mapas (respetando la tabla de progresión).
+=====================================================================
