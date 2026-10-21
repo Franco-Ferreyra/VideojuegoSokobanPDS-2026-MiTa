@@ -1,0 +1,759 @@
+@startuml Diagrama_Clases_TeMU_Express
+set namespaceSeparator none
+title TeMU Express - Diagrama de clases propuesto
+left to right direction
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype polyline
+skinparam nodesep 25
+skinparam ranksep 45
+skinparam classFontSize 12
+skinparam ArrowFontSize 10
+hide empty members
+
+legend top left
+  Propuesta de diseño, no diagrama de código implementado.
+  Un solo diagrama: modelo, MVC y patrones seleccionados.
+  <<opcional>>: depende de confirmar el editor.
+  Las multiplicidades representan referencias, no copias de objetos.
+endlegend
+
+package "Modelo de la partida" #EAF3FF {
+  enum Escenario {
+    CHINA
+    EEUU
+    ALEMANIA
+    ARGENTINA_CHILE
+    ECUADOR_COLOMBIA
+    VENEZUELA_PERU
+  }
+  enum Direccion {
+    ARRIBA
+    ABAJO
+    IZQUIERDA
+    DERECHA
+  }
+  enum EstadoPartida {
+    EN_CURSO
+    GANADA
+    PERDIDA
+  }
+  enum TipoCaja {
+    NORMAL
+    FRAGIL
+    LLAVE
+  }
+  enum TipoTerreno {
+    PISO
+    PARED
+    DESTINO
+    RESBALADIZO
+    CERROJO
+    MURO
+    AGUJERO
+    CINTA
+    PORTAL
+  }
+  class Posicion <<inmutable>> {
+    - fila: int
+    - columna: int
+    + desplazar(direccion: Direccion): Posicion
+  }
+  class Nivel {
+    - numero: int
+    - parMovimientos: int
+    + estaResuelto(): boolean
+  }
+  abstract class TableroRegional <<Abstract Product>> {
+    - filas: int
+    - columnas: int
+    + obtenerCasilla(posicion: Posicion): Casilla
+    + contiene(posicion: Posicion): boolean
+  }
+  class RecursosTablero <<inmutable>> {
+    - imagenesPorTerreno: Map<TipoTerreno, String>
+    - imagenesPorCaja: Map<TipoCaja, String>
+  }
+  class Casilla {
+    + puedeRecibirJugador(): boolean
+    + tieneCaja(): boolean
+  }
+  class Jugador {
+    - posicion: Posicion
+  }
+  abstract class Caja {
+    - id: String
+    + getTipo(): TipoCaja
+    + registrarEmpuje(): void
+    + puedeActivar(grupo: String): boolean
+  }
+  class CajaNormal
+  class CajaFragil {
+    - resistencia: int
+    + estaRota(): boolean
+    + registrarEmpuje(): void
+  }
+  class CajaLlave {
+    - grupo: String
+    + puedeActivar(grupo: String): boolean
+  }
+  abstract class Terreno {
+    + getTipo(): TipoTerreno
+    + permiteJugador(): boolean
+    + permiteEntradaCaja(): boolean
+  }
+  class Piso
+  class Pared
+  class Destino
+  class Resbaladizo
+  class Cerrojo {
+    - grupo: String
+  }
+  class Muro {
+    - grupo: String
+    - abierto: boolean
+  }
+  class Agujero {
+    - tapado: boolean
+  }
+  class Cinta {
+    - direccion: Direccion
+  }
+  class Portal {
+    - id: String
+    - idPareja: String
+  }
+  class ContadoresPartida {
+    - movimientos: int
+    - empujes: int
+    - usosUndoAcumulados: int
+    - usosUndoConsecutivos: int
+    + registrarMovimiento(empujo: boolean): void
+    + registrarUndo(): void
+  }
+  class Partida <<Receiver, Concrete Publisher>> {
+    - estado: EstadoPartida
+    + cargarNivel(nivel: Nivel): void
+    + ejecutarMovimiento(direccion: Direccion): ResultadoMovimiento
+    + restaurarCambios(registro: RegistroCambios): void
+    + registrarUsoUndo(): void
+    + publicarResultado(tipo: TipoEvento): void
+    + obtenerResumen(): ResumenNivelDTO
+  }
+  class MotorMovimientos {
+    + intentar(nivel: Nivel, direccion: Direccion): ResultadoMovimiento
+    + restaurar(nivel: Nivel, registro: RegistroCambios): void
+  }
+  class ValidadorMovimiento {
+    + validar(nivel: Nivel, plan: PlanMovimiento): boolean
+  }
+
+  Nivel --> "1" Escenario
+  Nivel "1" *-- "1" TableroRegional : tablero
+  Nivel "1" *-- "1" Jugador
+  TableroRegional "1" *-- "1..*" Casilla : matriz rectangular
+  TableroRegional --> "1" RecursosTablero
+  Casilla --> "1" Posicion
+  Casilla "1" *-- "1" Terreno
+  Casilla "0..1" --> "0..1" Caja : ocupante actual
+  TableroRegional "1" *-- "0..*" Caja : cajas presentes
+  Jugador --> "1" Posicion
+  Caja <|-- CajaNormal
+  Caja <|-- CajaFragil
+  Caja <|-- CajaLlave
+  Terreno <|-- Piso
+  Terreno <|-- Pared
+  Terreno <|-- Destino
+  Terreno <|-- Resbaladizo
+  Terreno <|-- Cerrojo
+  Terreno <|-- Muro
+  Terreno <|-- Agujero
+  Terreno <|-- Cinta
+  Terreno <|-- Portal
+  Portal "0..1" --> "1" Portal : pareja
+  Cerrojo "1" --> "0..*" Muro : controla por grupo
+  Partida "1" --> "0..1" Nivel : nivel actual
+  Partida "1" *-- "1" ContadoresPartida
+  Partida --> "1" MotorMovimientos
+  MotorMovimientos --> "1" ValidadorMovimiento
+}
+
+package "Carga - Builder, Factory Method y Facade" #EAF9ED {
+  class DefinicionNivel <<inmutable>> {
+    - numero: int
+    - escenario: Escenario
+    - rutaMapa: String
+    - parMovimientos: int
+  }
+  class CatalogoNiveles {
+    + buscar(numero: int): DefinicionNivel
+  }
+  class PreparadorNivelFacade <<Facade>> {
+    + prepararNivel(numero: int): NivelPreparado
+  }
+  class NivelPreparado {
+    + nivel: Nivel
+    + personaje: PersonajeRegional
+    + fondo: FondoRegional
+    + voces: VocesRegionales
+    + sonidos: SonidosRegionales
+    + mensajes: MensajesRegionales
+  }
+  class SelectorFabricaRegion {
+    + seleccionar(escenario: Escenario): FabricaRegion
+  }
+  class CargadorRecursos {
+    + preparar(familia: NivelPreparado): void
+  }
+  class LectorNivel <<Director>> {
+    + leer(definicion: DefinicionNivel, tablero: TableroRegional, builder: ConstructorNivel): Nivel
+  }
+  interface ConstructorNivel <<Builder>> {
+    + iniciarTablero(tablero: TableroRegional, filas: int, columnas: int): void
+    + agregarTerreno(posicion: Posicion, terreno: Terreno): void
+    + agregarCaja(posicion: Posicion, caja: Caja): void
+    + colocarJugador(posicion: Posicion): void
+    + vincularElementos(): void
+    + obtenerNivel(): Nivel
+  }
+  class ConstructorNivelSokoban <<Concrete Builder>> {
+    - nivelEnConstruccion: Nivel
+    + obtenerNivel(): Nivel
+  }
+  interface CreadorCaja <<Creator>> {
+    + crearCaja(): Caja
+  }
+  class CreadorCajaNormal <<Concrete Creator>> {
+    + crearCaja(): CajaNormal
+  }
+  class CreadorCajaFragil <<Concrete Creator>> {
+    - resistenciaInicial: int
+    + crearCaja(): CajaFragil
+  }
+  class CreadorCajaLlave <<Concrete Creator>> {
+    - grupo: String
+    + crearCaja(): CajaLlave
+  }
+  class RegistroCreadoresCaja {
+    - creadores: Map<Character, CreadorCaja>
+    + obtener(simbolo: char): CreadorCaja
+  }
+
+  CatalogoNiveles "1" o-- "6" DefinicionNivel
+  PreparadorNivelFacade --> CatalogoNiveles
+  PreparadorNivelFacade --> SelectorFabricaRegion
+  PreparadorNivelFacade --> LectorNivel
+  PreparadorNivelFacade --> ConstructorNivel
+  PreparadorNivelFacade --> CargadorRecursos
+  PreparadorNivelFacade --> GestorSonido
+  PreparadorNivelFacade ..> NivelPreparado : entrega
+  NivelPreparado --> "1" Nivel
+  NivelPreparado --> "1" PersonajeRegional
+  NivelPreparado --> "1" FondoRegional
+  NivelPreparado --> "1" VocesRegionales
+  NivelPreparado --> "1" SonidosRegionales
+  NivelPreparado --> "1" MensajesRegionales
+  LectorNivel --> ConstructorNivel : dirige pasos
+  LectorNivel --> RegistroCreadoresCaja
+  LectorNivel ..> CreadorCaja : solicita productos
+  ConstructorNivel <|.. ConstructorNivelSokoban
+  ConstructorNivelSokoban ..> Nivel : construye
+  CreadorCaja <|.. CreadorCajaNormal
+  CreadorCaja <|.. CreadorCajaFragil
+  CreadorCaja <|.. CreadorCajaLlave
+  CreadorCajaNormal ..> CajaNormal : crea
+  CreadorCajaFragil ..> CajaFragil : crea
+  CreadorCajaLlave ..> CajaLlave : crea
+  RegistroCreadoresCaja --> "1..*" CreadorCaja
+}
+
+package "Familias regionales - Abstract Factory" #FFF3DB {
+  interface FabricaRegion <<Abstract Factory>> {
+    + crearTablero(): TableroRegional
+    + crearPersonaje(): PersonajeRegional
+    + crearFondo(): FondoRegional
+    + crearVoces(): VocesRegionales
+    + crearSonidos(): SonidosRegionales
+    + crearMensajes(): MensajesRegionales
+  }
+  class FabricaChina <<Concrete Factory>>
+  class FabricaEstadosUnidos <<Concrete Factory>>
+  class FabricaAlemania <<Concrete Factory>>
+  class FabricaSudamerica <<Concrete Factory>> {
+    - variante: Escenario
+  }
+  interface PersonajeRegional <<Abstract Product>> {
+    + getEscenario(): Escenario
+    + imagen(direccion: Direccion): String
+  }
+  interface FondoRegional <<Abstract Product>> {
+    + getEscenario(): Escenario
+    + imagen(): String
+  }
+  interface VocesRegionales <<Abstract Product>> {
+    + getEscenario(): Escenario
+    + recurso(evento: TipoEvento): String
+  }
+  interface SonidosRegionales <<Abstract Product>> {
+    + getEscenario(): Escenario
+    + musica(): String
+    + efecto(evento: TipoEvento): String
+  }
+  interface MensajesRegionales <<Abstract Product>> {
+    + getEscenario(): Escenario
+    + introduccion(): String
+  }
+
+  package "China" {
+    class TableroChina
+    class PersonajeChina
+    class FondoChina
+    class VocesChina
+    class SonidosChina
+    class MensajesChina
+  }
+  package "EEUU" {
+    class TableroEstadosUnidos
+    class PersonajeEstadosUnidos
+    class FondoEstadosUnidos
+    class VocesEstadosUnidos
+    class SonidosEstadosUnidos
+    class MensajesEstadosUnidos
+  }
+  package "Alemania" {
+    class TableroAlemania
+    class PersonajeAlemania
+    class FondoAlemania
+    class VocesAlemania
+    class SonidosAlemania
+    class MensajesAlemania
+  }
+  package "Sudamérica - tres variantes de recursos" {
+    class TableroSudamerica {
+      - variante: Escenario
+    }
+    class PersonajeSudamerica {
+      - variante: Escenario
+    }
+    class FondoSudamerica {
+      - variante: Escenario
+    }
+    class VocesSudamerica {
+      - variante: Escenario
+    }
+    class SonidosSudamerica {
+      - variante: Escenario
+    }
+    class MensajesSudamerica {
+      - variante: Escenario
+    }
+  }
+
+  FabricaRegion <|.. FabricaChina
+  FabricaRegion <|.. FabricaEstadosUnidos
+  FabricaRegion <|.. FabricaAlemania
+  FabricaRegion <|.. FabricaSudamerica
+  SelectorFabricaRegion ..> FabricaRegion : selecciona
+  FabricaChina ..> TableroChina : crea
+  FabricaChina ..> PersonajeChina : crea
+  FabricaChina ..> FondoChina : crea
+  FabricaChina ..> VocesChina : crea
+  FabricaChina ..> SonidosChina : crea
+  FabricaChina ..> MensajesChina : crea
+  FabricaEstadosUnidos ..> TableroEstadosUnidos : crea
+  FabricaEstadosUnidos ..> PersonajeEstadosUnidos : crea
+  FabricaEstadosUnidos ..> FondoEstadosUnidos : crea
+  FabricaEstadosUnidos ..> VocesEstadosUnidos : crea
+  FabricaEstadosUnidos ..> SonidosEstadosUnidos : crea
+  FabricaEstadosUnidos ..> MensajesEstadosUnidos : crea
+  FabricaAlemania ..> TableroAlemania : crea
+  FabricaAlemania ..> PersonajeAlemania : crea
+  FabricaAlemania ..> FondoAlemania : crea
+  FabricaAlemania ..> VocesAlemania : crea
+  FabricaAlemania ..> SonidosAlemania : crea
+  FabricaAlemania ..> MensajesAlemania : crea
+  FabricaSudamerica ..> TableroSudamerica : crea según variante
+  FabricaSudamerica ..> PersonajeSudamerica : crea según variante
+  FabricaSudamerica ..> FondoSudamerica : crea según variante
+  FabricaSudamerica ..> VocesSudamerica : crea según variante
+  FabricaSudamerica ..> SonidosSudamerica : crea según variante
+  FabricaSudamerica ..> MensajesSudamerica : crea según variante
+  TableroRegional <|-- TableroChina
+  TableroRegional <|-- TableroEstadosUnidos
+  TableroRegional <|-- TableroAlemania
+  TableroRegional <|-- TableroSudamerica
+  PersonajeRegional <|.. PersonajeChina
+  PersonajeRegional <|.. PersonajeEstadosUnidos
+  PersonajeRegional <|.. PersonajeAlemania
+  PersonajeRegional <|.. PersonajeSudamerica
+  FondoRegional <|.. FondoChina
+  FondoRegional <|.. FondoEstadosUnidos
+  FondoRegional <|.. FondoAlemania
+  FondoRegional <|.. FondoSudamerica
+  VocesRegionales <|.. VocesChina
+  VocesRegionales <|.. VocesEstadosUnidos
+  VocesRegionales <|.. VocesAlemania
+  VocesRegionales <|.. VocesSudamerica
+  SonidosRegionales <|.. SonidosChina
+  SonidosRegionales <|.. SonidosEstadosUnidos
+  SonidosRegionales <|.. SonidosAlemania
+  SonidosRegionales <|.. SonidosSudamerica
+  MensajesRegionales <|.. MensajesChina
+  MensajesRegionales <|.. MensajesEstadosUnidos
+  MensajesRegionales <|.. MensajesAlemania
+  MensajesRegionales <|.. MensajesSudamerica
+}
+
+package "Recorridos de cajas - Strategy" #EFEAFF {
+  interface EstrategiaDesplazamientoCaja <<Strategy>> {
+    + calcularRecorrido(contexto: ContextoDesplazamiento): PlanMovimiento
+  }
+  class DesplazamientoNormal <<Concrete Strategy>>
+  class DesplazamientoResbaladizo <<Concrete Strategy>>
+  class DesplazamientoCinta <<Concrete Strategy>>
+  class DesplazamientoPortal <<Concrete Strategy>>
+  class ResolverDesplazamiento <<Context>> {
+    - estrategia: EstrategiaDesplazamientoCaja
+    + usar(estrategia: EstrategiaDesplazamientoCaja): void
+    + resolver(contexto: ContextoDesplazamiento): PlanMovimiento
+  }
+  class ConfiguracionTerrenos {
+    - estrategias: Map<TipoTerreno, EstrategiaDesplazamientoCaja>
+    + obtener(terreno: Terreno): EstrategiaDesplazamientoCaja
+  }
+  class ContextoDesplazamiento <<solo lectura>> {
+    + tablero: TableroRegional
+    + caja: Caja
+    + origen: Posicion
+    + direccion: Direccion
+  }
+  class PlanMovimiento {
+    - recorrido: List<Posicion>
+    - valido: boolean
+    + agregarPaso(posicion: Posicion): void
+  }
+  EstrategiaDesplazamientoCaja <|.. DesplazamientoNormal
+  EstrategiaDesplazamientoCaja <|.. DesplazamientoResbaladizo
+  EstrategiaDesplazamientoCaja <|.. DesplazamientoCinta
+  EstrategiaDesplazamientoCaja <|.. DesplazamientoPortal
+  MotorMovimientos --> ResolverDesplazamiento
+  ResolverDesplazamiento --> "1" EstrategiaDesplazamientoCaja
+  ResolverDesplazamiento --> ConfiguracionTerrenos
+  ResolverDesplazamiento --> ValidadorMovimiento
+  EstrategiaDesplazamientoCaja ..> ContextoDesplazamiento
+  EstrategiaDesplazamientoCaja ..> PlanMovimiento
+}
+
+package "Acciones e historial - Command" #FFF0F2 {
+  interface Comando <<Command>> {
+    + ejecutar(): boolean
+  }
+  interface ComandoReversible {
+    + deshacer(): void
+  }
+  class ComandoMovimiento <<Concrete Command>> {
+    - direccion: Direccion
+    + ejecutar(): boolean
+    + deshacer(): void
+  }
+  class GestorComandos <<Invoker>> {
+    - capacidad: int = 15
+    - retrocesoPorUso: int = 5
+    - maxUsosConsecutivos: int = 3
+    + ejecutar(comando: ComandoReversible): boolean
+    + deshacerBloque(): boolean
+    + limpiarHistorial(): void
+  }
+  class ResultadoMovimiento {
+    + confirmado: boolean
+    + empujo: boolean
+    + estadoResultante: EstadoPartida
+  }
+  class RegistroCambios <<datos de una acción>> {
+    - posicionJugadorAnterior: Posicion
+    - estadoPartidaAnterior: EstadoPartida
+    - movimientosAnteriores: int
+    - empujesAnteriores: int
+  }
+  class CambioCaja <<valor anterior>> {
+    - idCaja: String
+    - posicionAnterior: Posicion
+    - resistenciaAnterior: Integer
+    - estabaEnTablero: boolean
+    - referenciaCaja: Caja
+  }
+  class CambioTerreno <<valor anterior>> {
+    - posicion: Posicion
+    - muroAbiertoAnterior: Boolean
+    - agujeroTapadoAnterior: Boolean
+  }
+  Comando <|-- ComandoReversible
+  ComandoReversible <|.. ComandoMovimiento
+  ComandoMovimiento --> "1" Partida : receptor
+  ComandoMovimiento "1" *-- "0..1" RegistroCambios : acción confirmada
+  GestorComandos "1" o-- "0..15" ComandoReversible : historial
+  GestorComandos --> "1" Partida : registra uso Undo al finalizar bloque
+  ResultadoMovimiento --> "0..1" RegistroCambios
+  RegistroCambios "1" *-- "0..*" CambioCaja
+  RegistroCambios "1" *-- "0..*" CambioTerreno
+}
+
+package "Eventos - Observer y DTO" #E8FAF8 {
+  interface PublicadorPartida <<Publisher>> {
+    + suscribir(observador: ObservadorPartida): void
+    + desuscribir(observador: ObservadorPartida): void
+    + notificar(evento: EventoPartidaDTO): void
+  }
+  interface ObservadorPartida <<Subscriber>> {
+    + actualizar(evento: EventoPartidaDTO): void
+  }
+  enum TipoEvento {
+    MOVIMIENTO
+    UNDO
+    REINICIO
+    VICTORIA
+    DERROTA
+  }
+  class EventoPartidaDTO <<inmutable>> {
+    + tipo: TipoEvento
+    + nivel: int
+    + escenario: Escenario
+    + estado: EstadoPartida
+    + movimientos: int
+    + empujes: int
+    + usosUndo: int
+    + usosUndoConsecutivos: int
+  }
+  class TableroDTO <<inmutable>> {
+    + filas: int
+    + columnas: int
+    + posicionJugador: Posicion
+    + direccionJugador: Direccion
+  }
+  class CasillaDTO <<inmutable>> {
+    + posicion: Posicion
+    + terreno: TipoTerreno
+    + muroAbierto: boolean
+    + agujeroTapado: boolean
+    + direccionCinta: Direccion
+  }
+  class CajaDTO <<inmutable>> {
+    + tipo: TipoCaja
+    + resistencia: Integer
+  }
+  class ResumenNivelDTO <<inmutable>> {
+    + numeroNivel: int
+    + movimientos: int
+    + empujes: int
+    + usosUndo: int
+    + parMovimientos: int
+    + escenario: Escenario
+  }
+  PublicadorPartida <|.. Partida
+  Partida --> "0..*" ObservadorPartida : suscriptores
+  ObservadorPartida ..> EventoPartidaDTO
+  EventoPartidaDTO --> "1" TableroDTO
+  TableroDTO --> "1..*" CasillaDTO
+  CasillaDTO --> "0..1" CajaDTO
+}
+
+package "Puntaje - Decorator" #FFF8DF {
+  interface CalculadorPuntaje <<Component>> {
+    + calcular(resumen: ResumenNivelDTO): int
+  }
+  class PuntajeBase <<Concrete Component>> {
+    + calcular(resumen: ResumenNivelDTO): int
+  }
+  abstract class DecoradorPuntaje <<Decorator>> {
+    # envuelto: CalculadorPuntaje
+    + calcular(resumen: ResumenNivelDTO): int
+  }
+  class BonusSinUndo <<Concrete Decorator>> {
+    - bonus: int
+  }
+  class BonusPorPar <<Concrete Decorator>> {
+    - bonus: int
+  }
+  class RecargoUndo <<Concrete Decorator>> {
+    - penalizacionAdicional: int
+  }
+  class ServicioPuntaje {
+    + configurar(escenario: Escenario): CalculadorPuntaje
+    + calcularFinal(resumen: ResumenNivelDTO): int
+  }
+  CalculadorPuntaje <|.. PuntajeBase
+  CalculadorPuntaje <|.. DecoradorPuntaje
+  DecoradorPuntaje --> "1" CalculadorPuntaje : envuelve
+  DecoradorPuntaje <|-- BonusSinUndo
+  DecoradorPuntaje <|-- BonusPorPar
+  DecoradorPuntaje <|-- RecargoUndo
+  ServicioPuntaje --> CalculadorPuntaje
+  ServicioPuntaje ..> BonusSinUndo : configura capas
+  ServicioPuntaje ..> BonusPorPar
+  ServicioPuntaje ..> RecargoUndo
+}
+
+package "Presentación Swing y control - MVC" #F0F1F5 {
+  class Aplicacion {
+    + main(args: String[]): void
+  }
+  class ControladorJuego <<Controller, Command Client>> {
+    + iniciarNivel(numero: int): void
+    + mover(direccion: Direccion): void
+    + deshacer(): void
+    + reiniciarNivel(): void
+    + siguienteNivel(): void
+  }
+  class VistaJuegoSwing <<View>> {
+    + mostrar(evento: EventoPartidaDTO): void
+    + mostrarResumen(resumen: ResumenNivelDTO, puntaje: int): void
+    + mostrarError(mensaje: String): void
+  }
+  class HUDSwing <<View>> {
+    + actualizar(evento: EventoPartidaDTO): void
+  }
+  class PresentadorPartida <<Concrete Subscriber>> {
+    + actualizar(evento: EventoPartidaDTO): void
+  }
+  abstract class VistaTablero <<Abstraction, Bridge opcional>> {
+    # renderizador: RenderizadorRegional
+    + mostrar(tablero: TableroDTO): void
+  }
+  class VistaTableroJuego <<Refined Abstraction>>
+  class VistaTableroEditor <<opcional, Refined Abstraction>>
+  interface RenderizadorRegional <<Implementor, Bridge opcional>> {
+    + dibujarPiso(casilla: CasillaDTO): void
+    + dibujarPared(casilla: CasillaDTO): void
+    + dibujarDestino(casilla: CasillaDTO): void
+    + dibujarCaja(caja: CajaDTO, posicion: Posicion): void
+    + dibujarPersonaje(posicion: Posicion, direccion: Direccion): void
+  }
+  class RenderizadorChina
+  class RenderizadorEstadosUnidos
+  class RenderizadorAlemania
+  class RenderizadorSudamerica {
+    - variante: Escenario
+  }
+  Aplicacion ..> ControladorJuego : configura dependencias
+  Aplicacion ..> PresentadorPartida : suscribe
+  Aplicacion ..> ReaccionAudioPartida : suscribe
+  VistaJuegoSwing --> ControladorJuego : teclas y botones
+  ControladorJuego --> PreparadorNivelFacade
+  ControladorJuego --> Partida
+  ControladorJuego --> GestorComandos
+  ControladorJuego --> ServicioPuntaje
+  ControladorJuego ..> ComandoMovimiento : crea
+  ControladorJuego --> VistaJuegoSwing : DTO y errores
+  ObservadorPartida <|.. PresentadorPartida
+  PresentadorPartida --> VistaJuegoSwing
+  VistaJuegoSwing "1" *-- "1" HUDSwing
+  VistaJuegoSwing "1" *-- "1" VistaTableroJuego
+  VistaTablero <|-- VistaTableroJuego
+  VistaTablero <|-- VistaTableroEditor
+  VistaTablero --> "1" RenderizadorRegional : puente
+  RenderizadorRegional <|.. RenderizadorChina
+  RenderizadorRegional <|.. RenderizadorEstadosUnidos
+  RenderizadorRegional <|.. RenderizadorAlemania
+  RenderizadorRegional <|.. RenderizadorSudamerica
+  RenderizadorRegional ..> RecursosTablero : recursos de la familia
+  RenderizadorRegional ..> PersonajeRegional
+}
+
+package "Audio regional - Singleton" #FFECEF {
+  class GestorSonido <<Singleton>> {
+    - {static} instancia: GestorSonido
+    - volumen: float
+    - GestorSonido()
+    + {static} getInstance(): GestorSonido
+    + configurar(voces: VocesRegionales, sonidos: SonidosRegionales): void
+    + reproducirVoz(evento: TipoEvento): void
+    + reproducirEfecto(evento: TipoEvento): void
+    + cambiarMusica(): void
+    + detener(): void
+  }
+  class ReaccionAudioPartida <<Concrete Subscriber>> {
+    + actualizar(evento: EventoPartidaDTO): void
+  }
+  ObservadorPartida <|.. ReaccionAudioPartida
+  ReaccionAudioPartida --> GestorSonido
+  GestorSonido --> "0..1" VocesRegionales
+  GestorSonido --> "0..1" SonidosRegionales
+}
+
+note right of CatalogoNiveles
+  Orden actual:
+  1. China
+  2. EEUU
+  3. Alemania
+  4. Argentina - Chile
+  5. Ecuador - Colombia
+  6. Venezuela - Perú
+end note
+
+note right of FabricaSudamerica
+  Cada variante conserva sus propios recursos.
+  La fábrica y TODOS sus productos deben usar
+  el mismo Escenario sudamericano.
+end note
+
+note right of ConstructorNivelSokoban
+  Valida mapa rectangular, jugador único,
+  cajas, destinos, agujeros y conexiones.
+  No demuestra que el mapa tenga solución.
+end note
+
+note right of MotorMovimientos
+  Planifica, valida y aplica la acción completa.
+  Deslizamientos y efectos automáticos forman
+  parte de un mismo movimiento confirmado.
+  No modifica parcialmente el tablero si falla.
+end note
+
+note right of GestorComandos
+  Solo guarda movimientos confirmados.
+  Undo restaura 5 órdenes en orden inverso.
+  Máximo 3 usos consecutivos y 15 órdenes.
+  Un movimiento nuevo válido reinicia la racha.
+  Reiniciar o cambiar nivel limpia el historial.
+  Uso acumulado de Undo NO se restaura.
+  Con menos de 5 entradas: regla pendiente.
+  Publicar UN solo evento al terminar el bloque.
+end note
+
+note right of RegistroCambios
+  Datos anteriores por acción, no una copia
+  superficial del tablero. Permite restaurar
+  cajas rotas o retiradas y terrenos alterados.
+  La política final de contadores es pendiente.
+end note
+
+note right of ServicioPuntaje
+  Composición y valores por confirmar.
+  RecargoUndo solo en Argentina - Chile
+  si se mantiene la propuesta del equipo.
+  Recorte final propuesto: max(0, resultado).
+end note
+
+note right of VistaTableroEditor
+  Editor aún no confirmado.
+  Bridge solo se justifica si se mantienen
+  dos dimensiones de variación:
+  tipo de vista y representación regional.
+end note
+
+note right of GestorSonido
+  VoiceStudio se usa fuera del juego para
+  preparar archivos de voces regionales.
+  No se presupone integración con su API.
+end note
+
+note bottom of Partida
+  Propuesta a partir de los tres TXT de patrones.
+  Mecánicas, resistencia, cierre de muros y fórmula
+  de puntaje requieren las confirmaciones indicadas.
+  Observer notifica DTO después de confirmar cada
+  acción completa; Swing se actualiza en su hilo de eventos.
+end note
+@enduml
