@@ -1,0 +1,194 @@
+=====================================================================
+  DECISIONES DEL MVP - TeMU Express (特穆快递)
+  Equipo: Los DesubiAmericanos
+  Proceso de Desarrollo de Software - Prof. Jonathan Leonel Pepe
+  Actualizado: 26/10/2026
+=====================================================================
+
+PRIORIDAD DE ESTE DOCUMENTO
+---------------------------------------------------------------------
+Este documento reúne las decisiones cerradas por el equipo. Cuando
+otro documento del proyecto diga algo distinto, prevalece este.
+En particular reemplaza:
+  - El nombre "Venezuela - Perú" -> ahora es "Perú - Venezuela".
+  - El uso de Prototype -> se reemplaza por Memento.
+  - La numeración 1 a 6 -> ahora es región-subnivel (1-1 ... 4-3).
+
+
+1. ALCANCE DEL MVP
+---------------------------------------------------------------------
+Seis niveles, en formato región-subnivel:
+
+  Nivel | Región            | HUD (REGION)
+  ------|-------------------|-------------
+  1-1   | China             | CHINA
+  2-1   | Estados Unidos    | EEUU
+  3-1   | Alemania          | ALEMANIA
+  4-1   | Argentina - Chile | ARG-CHILE
+  4-2   | Ecuador - Colombia| ECU-COL
+  4-3   | Perú - Venezuela  | PERU-VEN
+
+Incluye todos los requisitos obligatorios del enunciado y tres
+funcionalidades adicionales:
+  1. Regiones temáticas (Abstract Factory).
+  2. Terrenos especiales: agujeros, cinta y portales (Strategy).
+  3. Puntaje con bonus (Decorator).
+Fuera del MVP: editor, power-ups, clima, ranking, logros, repetición,
+contrarreloj y guardado.
+
+
+2. REGLAS DE JUEGO (interpretaciones del equipo, van al informe)
+---------------------------------------------------------------------
+* Victoria: cada caja responde estaEntregada(). Normal y frágil: sobre
+  un destino. Llave: sobre un cerrojo. Se gana cuando todas cumplen.
+* Muros: abiertos mientras haya una caja llave sobre un cerrojo. Si se
+  saca, se vuelven a cerrar, salvo que haya algo encima. Un solo grupo
+  por nivel: todos los cerrojos ocupados abren todos los muros.
+* Caja frágil: resistencia 3. Un deslizamiento largo cuenta como un
+  solo empuje. Al romperse se pierde el nivel y se ofrece Undo o
+  Reiniciar.
+* Jugador: no resbala. No puede pisar agujeros abiertos, cintas ni
+  portales.
+* Destinos: no pueden estar sobre terrenos especiales (lo valida el
+  Builder).
+* Agujeros: la caja que cae desaparece y el agujero pasa a ser piso.
+  Una caja extra por cada agujero.
+* Portales: van de a pares. Los dos portales de un par tienen el
+  MISMO COLOR y cada par usa un color distinto. Solo pasan cajas; la
+  caja sale en la dirección del empuje. Si la salida está bloqueada,
+  el empuje no se realiza.
+* Tamaño máximo del mapa: 13 columnas x 7 filas, paredes incluidas
+  (lo valida el Builder).
+
+
+3. UNDO Y REINICIAR
+---------------------------------------------------------------------
+Enunciado: "Se permite deshacer los últimos 15 movimientos realizados
+por el jugador [...] cada vez que se presione, restaure el estado del
+nivel 5 movimientos hacia atrás, hasta un máximo de tres usos
+consecutivos." El 15 limita lo que se puede deshacer, no los
+movimientos del nivel.
+
+* Se guardan los últimos 15 movimientos confirmados.
+* Cada uso retrocede 5; máximo 3 usos seguidos. El contador de usos
+  seguidos vuelve a 0 con cada movimiento nuevo.
+* Con menos de 5 guardados, se deshacen los que haya y se consume un
+  uso. Con historial vacío no pasa nada y no se consume.
+* Movimientos y empujes NO bajan al deshacer. usosUndo suma 1 por cada
+  uso efectivo y va al puntaje.
+* Reiniciar o cambiar de nivel vacía el historial.
+* El indicador de 3 cuadraditos del HUD muestra los usos seguidos que
+  quedan. En 4-1 (Argentina - Chile) se muestra "x2" por el recargo.
+
+
+4. PUNTAJE (opción C) Y 1UP
+---------------------------------------------------------------------
+* Base: 1000 - 3*movimientos - 5*empujes - 100*usosUndo.
+* BonusSinUndo: +200 si usosUndo = 0.
+* BonusPorPar: +150 si movimientos <= par del nivel.
+* RecargoUndo: -100 adicional por uso, solo en 4-1.
+* max(0, resultado) una sola vez, al final de la cadena.
+* 1UP (esquina superior izquierda): suma de los puntajes de los
+  niveles ya terminados. Se actualiza en la pantalla de resumen, no
+  con cada movimiento. Empieza en 000000.
+
+
+5. REPARTO DE MECÁNICAS (alineado con los bocetos)
+---------------------------------------------------------------------
+  Nivel | Región            | Mecánicas
+  ------|-------------------|------------------------------------------
+  1-1   | China             | Cajas normales + llave, cerrojo y muros
+  2-1   | EEUU              | Caja frágil + llave/cerrojo/muros
+  3-1   | Alemania          | Agujeros + caja frágil
+  4-1   | Argentina - Chile | Resbaladizo (hielo) + cerrojo/muros +
+        |                   | agujero + recargo de Undo
+  4-2   | Ecuador - Colombia| Cinta + caja frágil + cerrojo/muros
+  4-3   | Perú - Venezuela  | Portales + cinta + hielo + agujero +
+        |                   | frágil + llave/cerrojo/muros (nivel final)
+
+
+6. CAMBIOS A HACER EN LOS BOCETOS
+---------------------------------------------------------------------
+Generales (todos los bocetos):
+  - Sprites distintos para muro CERRADO y muro ABIERTO.
+  - Caja frágil con 3 sprites de grietas (resistencia 3, 2 y 1).
+  - Caja llave distinguible de la caja normal.
+  - HUD "NIVEL" con el formato región-subnivel de la tabla 1.
+  - 1UP en 000000 al iniciar la partida.
+  - Tablero de hasta 13x7 casillas.
+
+  1-1 China: agregar caja llave, un cerrojo y un muro cerrado que
+       separe una parte del mapa. Mantener una zona inicial con solo
+       cajas normales a modo de tutorial.
+  2-1 EEUU: reemplazar una caja normal por una caja frágil; agregar
+       caja llave, cerrojo y muro.
+  3-1 Alemania: agregar al menos un agujero (y una caja extra por cada
+       agujero) y una caja frágil.
+  4-1 Argentina - Chile: dejar claro el muro junto al cerrojo (cerrado
+       vs abierto). Mantener "x2" en el indicador de Undo.
+  4-2 Ecuador - Colombia: agregar un muro junto al cerrojo.
+  4-3 Perú - Venezuela: los portales van de a pares del mismo color
+       (por ejemplo, dos cian y dos naranjas); eliminar el portal sin
+       pareja o agregarle su par. Agregar un muro junto al cerrojo.
+       En el HUD dice "PERU-VEN".
+
+Todos los mapas deben probarse jugándolos para verificar que tienen
+solución; las validaciones del Builder no lo garantizan.
+
+
+7. PATRONES CONFIRMADOS
+---------------------------------------------------------------------
+Obligatorios por pedido del profesor: Strategy, Memento y Singleton.
+Prototype NO se usa (recomendación del profesor).
+
+Creacionales:
+  - Singleton: GestorSonido.
+  - Factory Method: CreadorCaja y creadores concretos.
+  - Abstract Factory: FabricaRegion. Productos: FondoRegional,
+    TableroRegional (pared, piso, destino, terrenos), PersonajeRegional,
+    EstiloHUD (colores de paneles, botones e indicador de Undo),
+    VocesRegionales, SonidosRegionales y MensajesRegionales.
+    Las cajas NO son regionales: el paquete TeMU es común.
+    FabricaSudamerica recibe la variante (ARG-CHILE, ECU-COL, PERU-VEN).
+  - Builder: ConstructorNivel / ConstructorNivelSokoban, dirigido por
+    LectorNivel.
+
+Estructurales:
+  - Decorator: puntaje.
+  - Facade: PreparadorNivelFacade.
+  - Bridge: solo documentado. Hay una única vista de juego con el mismo
+    layout en todas las regiones; sin editor no existen dos dimensiones
+    de variación. Se incorpora si se agrega el editor.
+
+Comportamiento:
+  - Strategy: EstrategiaDesplazamientoCaja (normal, resbaladizo, cinta,
+    portal), con control de ciclos.
+  - Memento: Undo y Reiniciar.
+      Originator: Partida (crearMemento(), restaurar(memento)).
+      Memento: MementoPartida, inmutable; guarda posición del jugador,
+      cada caja (tipo, posición, resistencia) y agujeros tapados. Los
+      muros se recalculan; los contadores no se guardan.
+      Caretaker: ComandoMovimiento (y Partida para el memento inicial).
+      Undo: se sacan hasta 5 comandos y se restaura el memento del más
+      antiguo. Reiniciar: se restaura el memento inicial.
+  - Command: ComandoMovimiento, GestorComandos (historial de 15).
+  - Observer: PresentadorPartida y ReaccionAudioPartida.
+
+
+8. FORMATO TXT
+---------------------------------------------------------------------
+Encabezado REGION, VARIANTE y PAR, y dos capas [TERRENO] y [OBJETOS].
+Terreno: # pared, espacio piso, . destino, L cerrojo, W muro,
+         O agujero, ~ resbaladizo, > < ^ v cinta, 1-9 portales (cada
+         dígito exactamente dos veces; un dígito = un par = un color).
+Objetos: @ jugador, $ caja normal, F caja frágil, K caja llave.
+
+
+PENDIENTES
+---------------------------------------------------------------------
+[ ] Mensajes regionales, personajes, logo y voces.
+[ ] Actualizar los bocetos según el punto 6.
+[ ] Diseñar los 6 mapas en TXT y comprobar que tienen solución.
+
+Para el informe técnico: declarar la asistencia de IA utilizada.
+=====================================================================

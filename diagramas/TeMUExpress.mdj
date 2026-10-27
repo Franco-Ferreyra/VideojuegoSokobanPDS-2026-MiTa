@@ -1,0 +1,162 @@
+{
+	"_type": "Project",
+	"_id": "AAAAAAFF+h6SjaM2Hec=",
+	"name": "Untitled",
+	"ownedElements": [
+		{
+			"_type": "UMLModel",
+			"_id": "AAAAAAFF+qBWK6M3Z8Y=",
+			"_parent": {
+				"$ref": "AAAAAAFF+h6SjaM2Hec="
+			},
+			"name": "Model",
+			"ownedElements": [
+				{
+					"_type": "UMLClassDiagram",
+					"_id": "AAAAAAFF+qBtyKM79qY=",
+					"_parent": {
+						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
+					},
+					"name": "Main",
+					"defaultDiagram": true
+				},
+				{
+					"_type": "UMLPackage",
+					"_id": "AAAAAAGhetDzWlTWoEE=",
+					"_parent": {
+						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
+					},
+					"name": "modelo",
+					"ownedElements": [
+						{
+							"_type": "UMLPackage",
+							"_id": "AAAAAAGhetOTWFTqjls=",
+							"_parent": {
+								"$ref": "AAAAAAGhetDzWlTWoEE="
+							},
+							"name": "estrategias",
+							"ownedElements": [
+								{
+									"_type": "UMLClassDiagram",
+									"_id": "AAAAAAGhetaDrFT4vnw=",
+									"_parent": {
+										"$ref": "AAAAAAGhetOTWFTqjls="
+									},
+									"name": "ClassDiagram1"
+								}
+							]
+						},
+						{
+							"_type": "UMLPackage",
+							"_id": "AAAAAAGhetPgOlTuXzc=",
+							"_parent": {
+								"$ref": "AAAAAAGhetDzWlTWoEE="
+							},
+							"name": "puntaje",
+							"ownedElements": [
+								{
+									"_type": "UMLClassDiagram",
+									"_id": "AAAAAAGhetbjs1T7C/A=",
+									"_parent": {
+										"$ref": "AAAAAAGhetPgOlTuXzc="
+									},
+									"name": "ClassDiagram1"
+								}
+							]
+						},
+						{
+							"_type": "UMLPackage",
+							"_id": "AAAAAAGhetSL5lT0+XM=",
+							"_parent": {
+								"$ref": "AAAAAAGhetDzWlTWoEE="
+							},
+							"name": "creacion",
+							"ownedElements": [
+								{
+									"_type": "UMLClassDiagram",
+									"_id": "AAAAAAGhetb1WFT+YOg=",
+									"_parent": {
+										"$ref": "AAAAAAGhetSL5lT0+XM="
+									},
+									"name": "ClassDiagram1"
+								}
+							]
+						}
+					]
+				},
+				{
+					"_type": "UMLPackage",
+					"_id": "AAAAAAGhetGR4FTaR0o=",
+					"_parent": {
+						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
+					},
+					"name": "vista",
+					"ownedElements": [
+						{
+							"_type": "UMLClassDiagram",
+							"_id": "AAAAAAGhetcyTFUBccw=",
+							"_parent": {
+								"$ref": "AAAAAAGhetGR4FTaR0o="
+							},
+							"name": "ClassDiagram1"
+						}
+					]
+				},
+				{
+					"_type": "UMLPackage",
+					"_id": "AAAAAAGhetHHtVTes6w=",
+					"_parent": {
+						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
+					},
+					"name": "controlador",
+					"ownedElements": [
+						{
+							"_type": "UMLClassDiagram",
+							"_id": "AAAAAAGhetdMs1UEPRE=",
+							"_parent": {
+								"$ref": "AAAAAAGhetHHtVTes6w="
+							},
+							"name": "ClassDiagram1"
+						}
+					]
+				},
+				{
+					"_type": "UMLPackage",
+					"_id": "AAAAAAGhetITaVTicqI=",
+					"_parent": {
+						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
+					},
+					"name": "dto",
+					"ownedElements": [
+						{
+							"_type": "UMLClassDiagram",
+							"_id": "AAAAAAGhetdjs1UHGIE=",
+							"_parent": {
+								"$ref": "AAAAAAGhetITaVTicqI="
+							},
+							"name": "ClassDiagram1"
+						}
+					]
+				},
+				{
+					"_type": "UMLPackage",
+					"_id": "AAAAAAGhetKAsVTm6hM=",
+					"_parent": {
+						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
+					},
+					"name": "recursos",
+					"ownedElements": [
+						{
+							"_type": "UMLClassDiagram",
+							"_id": "AAAAAAGhetd4mVUKnYc=",
+							"_parent": {
+								"$ref": "AAAAAAGhetKAsVTm6hM="
+							},
+							"name": "ClassDiagram1"
+						}
+					]
+				}
+			]
+		}
+	]
+}
