@@ -2,7 +2,7 @@
   DECISIONES DEL MVP - TeMU Express (特穆快递)
   Equipo: Los DesubiAmericanos
   Proceso de Desarrollo de Software - Prof. Jonathan Leonel Pepe
-  Actualizado: 26/10/2026
+  Actualizado: 05/11/2026
 =====================================================================
 
 PRIORIDAD DE ESTE DOCUMENTO
@@ -12,6 +12,7 @@ otro documento del proyecto diga algo distinto, prevalece este.
 En particular reemplaza:
   - El nombre "Venezuela - Perú" -> ahora es "Perú - Venezuela".
   - El uso de Prototype -> se reemplaza por Memento.
+  - Undo y Reiniciar se resuelven SOLO con Memento (ver punto 7).
   - La numeración 1 a 6 -> ahora es región-subnivel (1-1 ... 4-3).
 
 
@@ -32,9 +33,15 @@ Incluye todos los requisitos obligatorios del enunciado y tres
 funcionalidades adicionales:
   1. Regiones temáticas (Abstract Factory).
   2. Terrenos especiales: agujeros, cinta y portales (Strategy).
-  3. Puntaje con bonus (Decorator).
+     Strategy también resuelve el hielo, pero ese terreno es
+     obligatorio; lo adicional son los tres terrenos nuevos.
+  3. Sistema de bonificaciones TeMU (Decorator): bonus sin Undo, bonus
+     por par y recargo de Undo en 4-1, que se suman al puntaje base y
+     se combinan en tiempo de ejecución. El puntaje base cubre el
+     requisito obligatorio; las bonificaciones son el agregado.
 Fuera del MVP: editor, power-ups, clima, ranking, logros, repetición,
-contrarreloj y guardado.
+contrarreloj y guardar/continuar la partida en archivo (no lo pide la
+consigna; Memento se usa solo para Undo y Reiniciar).
 
 
 2. REGLAS DE JUEGO (interpretaciones del equipo, van al informe)
@@ -44,9 +51,14 @@ contrarreloj y guardado.
 * Muros: abiertos mientras haya una caja llave sobre un cerrojo. Si se
   saca, se vuelven a cerrar, salvo que haya algo encima. Un solo grupo
   por nivel: todos los cerrojos ocupados abren todos los muros.
-* Caja frágil: resistencia 3. Un deslizamiento largo cuenta como un
-  solo empuje. Al romperse se pierde el nivel y se ofrece Undo o
-  Reiniciar.
+* Movimiento (consigna): flechas; el jugador solo empuja (no tira),
+  una caja por vez, y no atraviesa cajas, paredes ni muros cerrados.
+* Resbaladizo (hielo): la caja sigue en la dirección del empuje hasta
+  chocar con algo o llegar a una casilla que no es hielo.
+* Caja frágil: resistencia inicial 4. Cada empuje resta 1 y al llegar
+  a 0 se rompe (regla de la consigna), así que aguanta 3 empujes y el
+  cuarto la rompe. Un deslizamiento largo cuenta como un solo empuje.
+  Al romperse se pierde el nivel y se ofrece Undo o Reiniciar.
 * Jugador: no resbala. No puede pisar agujeros abiertos, cintas ni
   portales.
 * Destinos: no pueden estar sobre terrenos especiales (lo valida el
@@ -88,6 +100,9 @@ movimientos del nivel.
 * BonusPorPar: +150 si movimientos <= par del nivel.
 * RecargoUndo: -100 adicional por uso, solo en 4-1.
 * max(0, resultado) una sola vez, al final de la cadena.
+* Pantalla de resumen al terminar cada nivel (consigna): movimientos,
+  empujes, usos de Undo y puntaje final. Luego se avanza al siguiente
+  nivel; después de 4-3 se muestra el final del juego con el 1UP.
 * 1UP (esquina superior izquierda): suma de los puntajes de los
   niveles ya terminados. Se actualiza en la pantalla de resumen, no
   con cada movimiento. Empieza en 000000.
@@ -111,7 +126,8 @@ movimientos del nivel.
 ---------------------------------------------------------------------
 Generales (todos los bocetos):
   - Sprites distintos para muro CERRADO y muro ABIERTO.
-  - Caja frágil con 3 sprites de grietas (resistencia 3, 2 y 1).
+  - Caja frágil con 4 sprites: sana (resistencia 4) y grietas leves
+    (3), medias (2) y fuertes (1, último empuje).
   - Caja llave distinguible de la caja normal.
   - HUD "NIVEL" con el formato región-subnivel de la tabla 1.
   - 1UP en 000000 al iniciar la partida.
@@ -154,25 +170,46 @@ Creacionales:
     LectorNivel.
 
 Estructurales:
-  - Decorator: puntaje.
-  - Facade: PreparadorNivelFacade.
+  - Decorator: Sistema de bonificaciones TeMU (puntaje).
+  - Facade: PreparadorNivelFacade. prepararNivel(numero) coordina los
+    subsistemas: LectorNivel (Builder), FabricaRegion (Abstract
+    Factory) y GestorSonido (música de la región), y devuelve el
+    nivel listo. El controlador solo llama a la fachada.
   - Bridge: solo documentado. Hay una única vista de juego con el mismo
     layout en todas las regiones; sin editor no existen dos dimensiones
     de variación. Se incorpora si se agrega el editor.
 
 Comportamiento:
   - Strategy: EstrategiaDesplazamientoCaja (normal, resbaladizo, cinta,
-    portal), con control de ciclos.
-  - Memento: Undo y Reiniciar.
-      Originator: Partida (crearMemento(), restaurar(memento)).
-      Memento: MementoPartida, inmutable; guarda posición del jugador,
-      cada caja (tipo, posición, resistencia) y agujeros tapados. Los
-      muros se recalculan; los contadores no se guardan.
-      Caretaker: ComandoMovimiento (y Partida para el memento inicial).
-      Undo: se sacan hasta 5 comandos y se restaura el memento del más
-      antiguo. Reiniciar: se restaura el memento inicial.
-  - Command: ComandoMovimiento, GestorComandos (historial de 15).
-  - Observer: PresentadorPartida y ReaccionAudioPartida.
+    portal), con control de ciclos. Cada Terreno devuelve su
+    estrategia (getEstrategia()); el contexto es Partida, que al
+    empujar usa la estrategia del terreno al que entra la caja.
+  - Memento: Undo y Reiniciar. Es el ÚNICO patrón para esto en el TP.
+      Originator: Partida (crearMemento(), restaurar(memento),
+      registrarUsoUndo()). Guarda además el memento inicial del nivel y
+      el contador usosUndoSeguidos (lo usa el HUD vía Observer).
+      Memento: MementoPartida (+ EstadoCaja), inmutable; guarda posición
+      del jugador, cada caja (tipo, posición, resistencia) y agujeros
+      tapados. Los muros se recalculan; los contadores no se guardan.
+      Getters con visibilidad de paquete: solo Partida (nucleo) los lee.
+      Caretaker: HistorialPartida. Solo guarda la pila de mementos
+      (máx. 15) y nunca lee su contenido. No conoce a Partida.
+      Flujo:
+        Movimiento: m = partida.crearMemento(); si partida.mover(dir)
+          es válido -> historial.guardar(m). Si se bloquea, no se guarda.
+        Undo: si quedan usos seguidos (máx. 3), m = historial.deshacer()
+          (saca hasta 5 y devuelve el más antiguo); si no es null ->
+          partida.restaurar(m) y partida.registrarUsoUndo().
+        Reiniciar: partida.reiniciar() (restaura el memento inicial) e
+          historial.limpiar(). Cambiar de nivel también lo limpia.
+      El controlador llama directamente a Partida e HistorialPartida.
+  - Observer: PresentadorPartida y ReaccionAudioPartida (paquete
+      controlador, según MVC de la Clase 6). Publisher: Partida.
+
+Arquitectura MVC (Clase 6): modelo (nucleo, creacion, estrategias,
+puntaje, observador), vista (Swing), controlador (ControladorJuego y
+observadores). La vista recibe DTO (EventoPartidaDTO, TableroDTO,
+ResumenNivelDTO) y no contiene reglas del juego.
 
 
 8. FORMATO TXT
@@ -182,6 +219,28 @@ Terreno: # pared, espacio piso, . destino, L cerrojo, W muro,
          O agujero, ~ resbaladizo, > < ^ v cinta, 1-9 portales (cada
          dígito exactamente dos veces; un dígito = un par = un color).
 Objetos: @ jugador, $ caja normal, F caja frágil, K caja llave.
+Un archivo .txt por nivel (consigna: "diferentes archivos de texto").
+W = muro, que empieza cerrado; se abre según la regla de cerrojos.
+
+
+9. INTERFAZ, ASSETS Y ENTREGA (exigido por la consigna)
+---------------------------------------------------------------------
+* Tecnología: Java + Swing (2D). No se usa JavaFX.
+* HUD: nivel actual, movimientos y empujes, con botones visibles de
+  UNDO y REINICIAR (más el indicador de usos de Undo y el 1UP).
+* Todos los elementos del tablero tienen imagen y cada acción tiene
+  un efecto de sonido (paso, empuje, caída, rotura, cerrojo, muros,
+  portal, cinta, resbalar, undo, reinicio, victoria y derrota).
+* Assets de dominio público: solo imágenes y sonidos propios o con
+  licencia de dominio público (CC0). Se anota el origen de cada uno
+  en el informe.
+* Entregables: repo público en GitHub con README (cómo ejecutar),
+  video de gameplay con todas las funcionalidades, diagrama de clases
+  en StarUML e informe técnico (decisiones de diseño justificadas con
+  SOLID, GRASP, MVC y GoF + declaración del uso de IA).
+* Entrega por mail a jpepe@uade.edu.ar: la envía un integrante, con
+  copia al resto, con el nombre del equipo y apellido y nombre de
+  cada integrante.
 
 
 PENDIENTES
@@ -189,6 +248,18 @@ PENDIENTES
 [ ] Mensajes regionales, personajes, logo y voces.
 [ ] Actualizar los bocetos según el punto 6.
 [ ] Diseñar los 6 mapas en TXT y comprobar que tienen solución.
+[ ] Diagrama 7 en StarUML: moverlo a nucleo como "7 - Memento" y armarlo
+    con Partida, MementoPartida, EstadoCaja e HistorialPartida.
+[ ] Actualizar Patrones_Comportamiento_TeMU_Express.txt para que el
+    Undo use solo Memento: prevalece este documento.
+[ ] Rehacer en StarUML los diagramas 4 (Abstract Factory) y 5
+    (Singleton + Facade) según el punto 7: hoy usan un ejemplo genérico.
+[ ] StarUML: en CajaFragil cambiar resistencia: int = 3 por = 4.
+[ ] Registrar el origen y la licencia de cada asset (música, efectos
+    y voces) para justificar el dominio público.
+[ ] README con instrucciones para ejecutar, video de gameplay e
+    informe técnico.
+[ ] Borrar HechoPorChatcito_BorrarAntesDeEntrega/ antes de entregar.
 
 Para el informe técnico: declarar la asistencia de IA utilizada.
 =====================================================================
