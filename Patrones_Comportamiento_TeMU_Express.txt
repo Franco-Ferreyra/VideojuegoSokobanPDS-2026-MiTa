@@ -6,28 +6,30 @@
 
 PROPUESTA DE DISEÑO
 ---------------------------------------------------------------------
-Aplicación de los tres patrones de comportamiento desarrollados en
-la clase 12: Observer, Strategy y Command.
-Los nombres de clases y métodos son propuestos; no representan
+Aplicación de tres patrones de comportamiento: Observer y Strategy
+(clase 12) y Memento (clase 13). Command (clase 12) no se usa: el
+equipo decidió resolver Undo y Reiniciar solo con Memento.
+Los nombres de clases y métodos coinciden con los diagramas de
+StarUML (6 - Strategy, 7 - Memento y 8 - Observer); no representan
 funcionalidades ya implementadas.
 
 Estos patrones distribuyen responsabilidades y organizan cómo los
 objetos ejecutan acciones y se comunican durante la partida.
 
-Se toman los TXT del proyecto y las decisiones posteriores del equipo.
-La distribución actual reemplaza la numeración anterior de la v2:
-  1. China.
-  2. EEUU.
-  3. Alemania.
-  4. Argentina - Chile.
-  5. Ecuador - Colombia.
-  6. Venezuela - Perú.
+Prevalece Decisiones_MVP_TeMU_ExpressFinal.txt. Los seis niveles
+usan el formato región-subnivel:
+  1-1 China.
+  2-1 Estados Unidos.
+  3-1 Alemania.
+  4-1 Argentina - Chile.
+  4-2 Ecuador - Colombia.
+  4-3 Perú - Venezuela.
 
 Cada escenario tiene su propio tablero, personaje, voces, fondo y
-demás recursos. El reparto de mecánicas entre los seis mapas queda
-por confirmar; los ejemplos no dan por cerrada esa distribución.
-Las voces se prepararán con VoiceStudio y el juego reproducirá los
-archivos incorporados a la familia regional correspondiente.
+demás recursos. El reparto de mecánicas entre los seis niveles está
+en el punto 5 de Decisiones. Las voces se prepararán con VoiceStudio
+y el juego reproducirá los archivos de la familia regional
+correspondiente.
 
 
 1. OBSERVER - NOTIFICACIONES DE LOS CAMBIOS DE LA PARTIDA
@@ -53,9 +55,14 @@ Participantes:
     desuscribir() y notificar().
   - Concrete Publisher: Partida.
   - Subscriber: ObservadorPartida, con actualizar(eventoDTO).
-  - Concrete Subscribers: PresentadorPartida y ReaccionAudioPartida.
-  - Datos del evento: tipo de cambio, nivel actual, estado del
-    tablero y contadores necesarios, sin referencias mutables al modelo.
+  - Concrete Subscribers: PresentadorPartida y ReaccionAudioPartida
+    (paquete controlador, según MVC de la Clase 6).
+  - Datos del evento (EventoPartidaDTO): tipo de cambio, nivel actual
+    y contadores (movimientos, empujes y usos de Undo seguidos), sin
+    referencias mutables al modelo. El estado del tablero NO viaja en
+    el evento: la vista lo recibe aparte como TableroDTO, que es parte
+    de la comunicación vista-controlador de MVC (Clase 6) y se muestra
+    en el diagrama 0. Observer (Clase 12) no lo necesita.
 
 PresentadorPartida actualiza la vista Swing y el HUD mediante DTO.
 ReaccionAudioPartida solicita a GestorSonido los recursos adecuados
@@ -71,7 +78,8 @@ efecto de empuje correspondiente al escenario actual.
 Los eventos distinguen movimiento, Undo, reinicio, victoria y derrota.
 Restaurar una caja mediante Undo no debe disparar como si fuera nuevo
 el sonido de rotura del movimiento que se está deshaciendo.
-Los logros podrían suscribirse más adelante si se elige esa función.
+Los logros quedan fuera del MVP; si se agregaran, serían otro
+observador sin cambiar Partida.
 
 Justificación y límite:
 Permite agregar una reacción sin modificar las reglas de movimiento.
@@ -94,210 +102,193 @@ modelo no tiene que conocer la pantalla ni el sistema de audio."
 Qué plantea la clase:
 Definir una familia de algoritmos, encapsular cada uno en una clase
 y permitir intercambiarlos mediante un contrato común. El contexto
-usa una estrategia por composición.
+usa una estrategia sin conocer su clase concreta.
 
 Problema en el juego:
 El recorrido de una caja cambia según el terreno: puede avanzar una
 casilla, deslizarse, seguir una cinta o atravesar un portal.
-Concentrar todos los algoritmos en un método del motor generaría
+Concentrar todos los algoritmos en un método de Partida generaría
 condicionales y mezclaría las particularidades de cada terreno.
 
 Aplicación propuesta:
-Definir EstrategiaDesplazamientoCaja con calcularRecorrido(contexto).
-ResolverDesplazamiento recibe la estrategia correspondiente al terreno
-y la utiliza para proponer el recorrido y sus efectos.
+Definir EstrategiaDesplazamientoCaja con
+calcularDestino(tablero, origen, dir): Posicion. Cada Terreno devuelve
+su estrategia con getEstrategia(). Al empujar, Partida pide la
+estrategia del terreno al que entra la caja y la usa para calcular
+dónde termina.
 
 Participantes:
   - Strategy: EstrategiaDesplazamientoCaja.
-  - Concrete Strategies: DesplazamientoNormal,
-    DesplazamientoResbaladizo, DesplazamientoCinta y
-    DesplazamientoPortal.
-  - Context: ResolverDesplazamiento, que mantiene la referencia
-    a la estrategia utilizada.
-  - Client: configuración de terrenos y motor de movimientos.
-  - Entrada: contexto de lectura del tablero, caja, posición y dirección.
-  - Salida: propuesta de recorrido y cambios para validar y aplicar.
+  - Concrete Strategies: EstrategiaNormal, EstrategiaResbaladiza,
+    EstrategiaCinta y EstrategiaPortal.
+  - Context: Partida, que usa la estrategia del terreno al empujar.
+  - Proveedor de la estrategia: Terreno, con getEstrategia().
+  - Entrada: tablero, posición de origen de la caja y dirección.
+  - Salida: posición final de la caja, que Partida valida y aplica.
 
-Algoritmos propuestos según las reglas de la v2:
+Algoritmos según las reglas de Decisiones (punto 2):
   - Normal: avanzar una casilla si el movimiento es posible.
-  - Resbaladizo: continuar en la dirección del empuje hasta detenerse
-    por un obstáculo o alcanzar terreno normal.
-  - Cinta: continuar según la dirección fija de la cinta hasta salir
+  - Resbaladizo (hielo): seguir en la dirección del empuje hasta
+    chocar con algo o llegar a una casilla que no es hielo.
+  - Cinta: seguir según la dirección fija de la cinta hasta salir
     de ella o encontrar un obstáculo.
-  - Portal: trasladar la caja al portal emparejado y calcular la salida
-    en la dirección del empuje; rechazar el empuje si esa salida
-    está bloqueada, como propone la v2.
+  - Portal: trasladar la caja al portal de su par y sacarla en la
+    dirección del empuje; si esa salida está bloqueada, el empuje
+    no se realiza.
 
 Ejemplo:
-Una caja llega a terreno resbaladizo y ResolverDesplazamiento utiliza
-DesplazamientoResbaladizo. Si otra caja llega a una cinta, utiliza
-DesplazamientoCinta. El motor trabaja con el mismo contrato y valida
-las reglas comunes de colisión y ocupación.
+Una caja entra a hielo y Partida usa EstrategiaResbaladiza, que
+obtuvo del terreno. Si otra caja entra a una cinta, usa
+EstrategiaCinta. Partida trabaja con el mismo contrato y valida las
+reglas comunes de colisión y ocupación.
 
-La estrategia se elige por el terreno activo, no solamente por el país.
-Un mismo tablero puede combinar varias mecánicas. Si el recorrido
-atraviesa distintos terrenos, el resolver encadena sus efectos y
-debe controlar ciclos, por ejemplo entre cintas o portales.
+La estrategia se elige por el terreno, no por el país. Un mismo
+tablero puede combinar varias mecánicas. Si el recorrido atraviesa
+distintos terrenos, se encadenan sus efectos con control de ciclos,
+por ejemplo entre cintas o portales.
 
 Justificación y límite:
 Separa los algoritmos y permite incorporar una nueva forma de
-desplazamiento agregando su estrategia y su configuración.
-Las estrategias pueden colaborar con un validador común; no deben
-duplicar las reglas de paredes, cajas y muros cerrados.
+desplazamiento agregando su estrategia y el terreno que la devuelve.
+Las estrategias no deben duplicar las reglas de paredes, cajas y
+muros cerrados.
 
-El recorrido se prepara sin modificar parcialmente el tablero real.
-El motor confirma el resultado completo o descarta el intento; no
+El recorrido se calcula sin modificar parcialmente el tablero real.
+Partida confirma el resultado completo o descarta el intento; no
 debe quedar una caja a mitad de un portal si el empuje fue rechazado.
 
 El comportamiento de CajaFragil y CajaLlave sigue siendo responsabilidad
-de esas cajas y las reglas del modelo. Strategy resuelve el recorrido,
-sin confundir el tipo de caja con el tipo de terreno. Tampoco permite
-al jugador pisar cintas ni usar portales: estas estrategias son de cajas.
+de esas cajas. Strategy resuelve el recorrido, sin confundir el tipo
+de caja con el tipo de terreno. Tampoco permite al jugador pisar
+cintas ni usar portales: estas estrategias son solo de cajas.
 
 Relación con Decorator:
 Strategy selecciona un algoritmo de desplazamiento intercambiable.
-Decorator conserva su aplicación a capas de bonus y penalizaciones
-de puntaje. Así tienen responsabilidades diferentes en este diseño.
+Decorator se aplica a las capas de bonus y recargos del puntaje.
+Así tienen responsabilidades diferentes en este diseño.
 
 Para defenderlo:
-"El motor delega el recorrido de la caja a una estrategia según el
-terreno. Cambiamos el algoritmo sin llenar el motor de casos especiales."
+"Cada terreno sabe qué estrategia usa y Partida la aplica al empujar.
+Cambiamos el algoritmo sin llenar el juego de casos especiales."
 
 
-3. COMMAND - MOVIMIENTOS Y DESHACER
+3. MEMENTO - UNDO Y REINICIAR
 ---------------------------------------------------------------------
 Qué plantea la clase:
-Representar una solicitud como un objeto que contiene la información
-para ejecutarla sobre un receptor. El invocador ejecuta el comando
-sin tener que conocer los detalles de esa operación.
+Guardar y restaurar el estado previo de un objeto sin revelar los
+detalles de su implementación. El Originator es el único que crea el
+Memento y el único que lo usa para restaurarse. El Memento es una
+cápsula inmutable. El Caretaker guarda el historial y nunca examina
+su contenido.
 
 Problema en el juego:
-Las flechas solicitan movimientos que pueden desplazar al jugador,
-empujar cajas y activar efectos. Para Undo hay que registrar qué
-cambió y poder restaurarlo, no solamente recordar la tecla pulsada.
+Undo tiene que volver el nivel a un estado anterior, incluso si se
+rompió una caja, se tapó un agujero o se abrió un muro. Si otra clase
+guardara esos datos, tendría que acceder a los atributos privados de
+Partida y se rompería con cada cambio interno.
 
 Aplicación propuesta:
-Crear un ComandoMovimiento por intento, con una dirección y una
-referencia al receptor Partida. El comando solicita ejecutar la acción
-y conserva un RegistroCambios si el movimiento se confirma.
+Antes de cada movimiento, Partida crea un MementoPartida con su
+estado. Si el movimiento es válido, HistorialPartida lo guarda. Para
+deshacer, el historial devuelve un memento y Partida se restaura.
 
 Participantes:
-  - Command: Comando, con ejecutar().
-  - Contrato para órdenes reversibles: ComandoReversible, que añade
-    deshacer().
-  - Concrete Command: ComandoMovimiento, con dirección, receptor y
-    registro de los cambios producidos por esa ejecución.
-  - Invoker: GestorComandos, que ejecuta órdenes y administra el historial.
-  - Receiver: Partida, que delega la validación y las reglas al motor.
-  - Client: ControladorJuego, que crea la orden a partir de una flecha.
+  - Originator: Partida, con crearMemento(), restaurar(memento) y
+    registrarUsoUndo(). Guarda además el memento inicial del nivel
+    (mementoInicial) para Reiniciar.
+  - Memento: MementoPartida, inmutable, con EstadoCaja para cada caja.
+    Guarda la posición del jugador, cada caja (tipo, posición y
+    resistencia) y los agujeros tapados. Los muros se recalculan y
+    los contadores no se guardan. Sus getters tienen visibilidad de
+    paquete: solo Partida (paquete nucleo) los lee.
+  - Caretaker: HistorialPartida, con guardar(m), deshacer() y
+    limpiar(). Solo guarda la pila de mementos (máx. 15), nunca lee su
+    contenido y no conoce a Partida.
+  - Client: ControladorJuego, que llama directamente a Partida e
+    HistorialPartida.
 
-Flujo de un movimiento:
-  1. El controlador crea ComandoMovimiento con la dirección solicitada.
-  2. GestorComandos llama ejecutar().
-  3. Partida resuelve colisiones, recorrido y efectos, usando el motor
-     y las estrategias correspondientes.
-  4. Si el intento queda bloqueado, no se agrega al historial ni se
-     incrementan los contadores de movimientos o empujes.
-  5. Si se confirma, el comando conserva los cambios, se incorpora al
-     historial y Partida publica el resultado para sus observadores.
+Flujo:
+  - Movimiento: m = partida.crearMemento(); si partida.mover(dir) es
+    válido, historial.guardar(m). Si se bloquea, no se guarda.
+  - Undo: si quedan usos seguidos (máx. 3), m = historial.deshacer(),
+    que saca hasta 5 y devuelve el más antiguo; si no es null,
+    partida.restaurar(m) y partida.registrarUsoUndo().
+  - Reiniciar: partida.reiniciar() restaura el memento inicial e
+    historial.limpiar(). Cambiar de nivel también limpia el historial.
 
-Registro para deshacer:
-Debe conservar los valores anteriores de todo lo que cambió: posición
-del jugador y de las cajas, resistencia de las frágiles, cajas retiradas,
-agujeros tapados, muros y demás estados afectados. Se propone guardar
-los cambios de cada acción, sin exigir otro patrón para copiarlos.
+Reglas de Undo (Decisiones, punto 3):
+  - Se guardan los últimos 15 movimientos confirmados.
+  - Cada uso retrocede 5; máximo 3 usos seguidos. El contador de usos
+    seguidos vuelve a 0 con cada movimiento nuevo.
+  - Con menos de 5 guardados, se deshacen los que haya y se consume un
+    uso. Con historial vacío no pasa nada y no se consume.
+  - Movimientos y empujes NO bajan al deshacer. usosUndo suma 1 por
+    cada uso efectivo y va al puntaje.
+  - Un deslizamiento largo es un solo movimiento del historial.
 
 Ejemplo:
-Un empuje deja caer una caja en un agujero. ComandoMovimiento registra
-la posición anterior del jugador, la caja retirada y el agujero abierto.
-deshacer() restaura esos datos. No se intenta invertir el movimiento
-empujando en sentido contrario, porque eso no recuperaría la caja.
-
-Una caja que se desliza varias casillas por un único empuje constituye
-una sola acción del historial, incluyendo sus efectos automáticos.
-La unidad es el movimiento confirmado por el jugador, no cada casilla
-recorrida automáticamente por la caja.
-
-Reglas de Undo a respetar:
-  - Conservar los últimos 15 movimientos confirmados.
-  - Cada uso deshace los últimos 5 en orden inverso.
-  - Permitir hasta 3 usos consecutivos.
-  - Reiniciar ese contador consecutivo con un movimiento nuevo válido,
-    según la regla del diseño v2.
-  - No registrar el propio Undo como un movimiento que después se
-    pueda deshacer para recuperar usos.
-
-Ejemplo: con 15 movimientos guardados, tres usos consecutivos de Undo
-pueden restaurar los 15. Al superar la capacidad, se descarta la entrada
-más antigua. Al comenzar otro nivel o reiniciar, se limpia el historial
-para impedir que Undo vuelva a una partida anterior.
-
-Si quedan entre 1 y 4 entradas, el comportamiento debe acordarse con
-el grupo: no se presenta como definida la posibilidad de deshacer
-menos de 5. Con historial vacío, Undo no produce cambios ni consume uso.
-
-Los usos acumulados de Undo para puntaje se conservan fuera de los
-datos que restaura cada comando. Un Undo efectivo incrementa ese total
-una vez, aunque revierta cinco órdenes. La política de movimientos y
-empujes mostrados al deshacer, y sus efectos en el puntaje, queda por
-confirmar. El contador consecutivo y el acumulado son datos distintos.
+Un empuje deja caer una caja en un agujero. El memento creado antes
+del empuje tiene la caja en su posición y el agujero sin tapar. Al
+deshacer, Partida se restaura con ese memento y la caja vuelve. No se
+intenta empujar en sentido contrario, porque eso no recuperaría la
+caja.
 
 Justificación y límite:
-Command permite representar acciones y administrar un historial, pero
-la reversibilidad requiere registrar y restaurar los efectos reales.
-El motor sigue aplicando las reglas; el comando encapsula la solicitud.
-El tipo de evento distingue Undo de un nuevo movimiento al notificar.
-
-Una repetición de partida podría reutilizar órdenes de movimiento si
-esa funcionalidad se elige. Un historial limitado a 15 no alcanza para
-reproducir una partida completa: necesitaría un registro separado.
-No se incorpora rehacer como funcionalidad por el solo uso de Command.
+Partida conserva el control de su estado y el historial queda
+desacoplado de sus detalles internos. Memento no es Command (Clase 13):
+Command encapsula acciones y Memento captura estados. Para Undo y
+Reiniciar alcanza con Memento. Guardar y continuar la partida en
+archivo queda fuera del MVP.
 
 Para defenderlo:
-"Cada movimiento es una orden que se ejecuta y registra sus cambios.
-Para deshacer restauramos sus efectos reales, incluso si se rompió
-una caja, se tapó un agujero o se activó un portal."
+"Antes de cada movimiento Partida saca una foto de su estado. Para
+deshacer, el historial devuelve una foto y Partida vuelve a ese
+estado, sin que nadie más vea sus datos privados."
 
 
 RELACIÓN ENTRE LOS TRES PATRONES
 ---------------------------------------------------------------------
-El controlador convierte la flecha en un Command. Partida y su motor
-usan Strategy para resolver el recorrido de las cajas. Cuando termina
-la acción completa, Observer comunica el resultado al presentador
-y al audio. El historial permite restaurar movimientos mediante Undo.
+El controlador recibe la flecha y llama a Partida. Antes de mover,
+Partida crea un memento; al empujar, usa la estrategia del terreno
+para resolver el recorrido de la caja. Si el movimiento es válido, el
+historial guarda el memento y Observer comunica el resultado al
+presentador y al audio. Undo y Reiniciar restauran mementos.
 
 Cada patrón responde a una necesidad diferente:
   - Observer: quiénes reciben los cambios de la partida.
   - Strategy: qué algoritmo calcula el desplazamiento de una caja.
-  - Command: cómo se representa y registra una solicitud de movimiento.
+  - Memento: cómo se guarda y se restaura el estado para Undo y
+    Reiniciar.
 
-Las fábricas regionales continúan aportando los recursos propios de
+Las fábricas regionales siguen aportando los recursos propios de
 cada escenario. Los patrones de comportamiento operan sobre las reglas
-de la partida y no requieren duplicar el motor para cada país.
+de la partida y no requieren duplicar la lógica para cada país.
 
 
-FUENTES Y DECISIONES PENDIENTES
+FUENTES
 ---------------------------------------------------------------------
-Presentación del ZIP OneDrive_1_21-10-2026.zip:
-  - Clase 12: Observer (págs. 5-9), Strategy (11-15), Command (17-21).
+Teoría de la materia:
+  - Clase 12: Observer (págs. 5-9) y Strategy (págs. 11-15).
+  - Clase 13: Memento (págs. 5-10).
+  - Clase 6: MVC y comunicación vista-controlador mediante DTO.
 
-Documentos y aclaraciones considerados:
+Documentos considerados:
+  - Decisiones_MVP_TeMU_ExpressFinal.txt: decisiones cerradas del
+    equipo; prevalece sobre los demás documentos.
   - Resumen_TP_TeMU_Express.txt: requisitos, MVC, HUD, audio y Undo.
-  - Diseno_Niveles_TeMU_Express_v2.txt: efectos de terrenos, cajas
-    especiales, reglas de Undo y reinicio. Su distribución de niveles
-    queda reemplazada por los seis escenarios actuales.
+  - Diseno_Niveles_TeMU_Express_v2.txt: efectos de terrenos y cajas
+    especiales. Su distribución de niveles queda reemplazada por la
+    de Decisiones.
   - Patrones_Creacionales_TeMU_Express.txt: familias regionales,
     creación de cajas y armado de niveles.
-  - Patrones_Estructurales_TeMU_Express.txt: ajustes de puntaje,
-    presentación y preparación del nivel.
-  - Decisiones posteriores del equipo: seis niveles en el orden
-    indicado, recursos propios de cada escenario y uso de VoiceStudio.
+  - Patrones_Estructurales_TeMU_Express.txt: puntaje, presentación y
+    preparación del nivel.
+  - Diagramas de clases en StarUML (diagramas/TeMUExpress.mdj).
 
-Por confirmar: reparto de mecánicas entre los seis niveles, interacción
-entre terrenos especiales, resistencia de cajas frágiles, regla final
-de muros, contadores y puntaje al deshacer, tratamiento de historiales
-con menos de cinco movimientos y funciones opcionales como logros
-o repetición. Los ejemplos son propuestas de diseño.
+Las reglas que antes figuraban como pendientes (reparto de mecánicas,
+resistencia de la caja frágil, regla de muros, contadores al deshacer
+e historial con menos de cinco movimientos) ya están cerradas en
+Decisiones_MVP_TeMU_ExpressFinal.txt.
 
 Para el informe técnico, declarar la asistencia de IA utilizada
 en la elaboración de esta propuesta según la consigna del proyecto.
