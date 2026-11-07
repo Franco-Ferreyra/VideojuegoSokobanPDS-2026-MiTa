@@ -108,7 +108,7 @@ Base: el repartidor de TeMU que diseñó el grupo (archivo del compañero), pasa
 | Alemania | **Der Führer** | Seudónimo o título de Adolfo Hitler. | `repartidor_rojo` |
 | Sudamérica | **Simoncito** o **El negro de América** | Apodos de Simón Bolívar. | `repartidor_verde` |
 
-**Esqueleto:** se propone mostrarlo en la pantalla de derrota, cuando se rompe una caja frágil o cae una caja llave en un agujero (`repartidor_verde/esqueleto.png`).
+**Esqueleto:** se propone mostrarlo en la pantalla de derrota, cuando se rompe una caja frágil o cae una caja llave en un agujero. Cada repartidor tiene su esqueleto con sus colores (`repartidor_<color>/esqueleto.png`).
 
 **A confirmar por el grupo:**
 - Si el esqueleto va en la derrota.
