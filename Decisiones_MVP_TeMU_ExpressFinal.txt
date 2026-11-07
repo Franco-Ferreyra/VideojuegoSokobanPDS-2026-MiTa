@@ -46,11 +46,15 @@ consigna; Memento se usa solo para Undo y Reiniciar).
 
 2. REGLAS DE JUEGO (interpretaciones del equipo, van al informe)
 ---------------------------------------------------------------------
-* Victoria: cada caja responde estaEntregada(). Normal y frágil: sobre
-  un destino. Llave: sobre un cerrojo. Se gana cuando todas cumplen.
-* Muros: abiertos mientras haya una caja llave sobre un cerrojo. Si se
-  saca, se vuelven a cerrar, salvo que haya algo encima. Un solo grupo
-  por nivel: todos los cerrojos ocupados abren todos los muros.
+* Victoria (consigna: "todas las cajas están en sus destinos"): cada
+  caja responde estaEntregada(). Normal y frágil: sobre un destino.
+  Llave: sobre un cerrojo. Se gana cuando todas las cajas que quedan en
+  el tablero cumplen. La regla de conteo de cajas (ver Agujeros)
+  garantiza que así queden ocupados todos los destinos y cerrojos.
+* Muros: un solo grupo por nivel. Se abren cuando TODOS los cerrojos
+  tienen una caja llave encima. Si algún cerrojo queda libre, los muros
+  se cierran; el muro que en ese momento tenga encima al jugador o una
+  caja queda abierto y se cierra apenas se libera.
 * Movimiento (consigna): flechas; el jugador solo empuja (no tira),
   una caja por vez, y no atraviesa cajas, paredes ni muros cerrados.
 * Resbaladizo (hielo): la caja sigue en la dirección del empuje hasta
@@ -64,7 +68,12 @@ consigna; Memento se usa solo para Undo y Reiniciar).
 * Destinos: no pueden estar sobre terrenos especiales (lo valida el
   Builder).
 * Agujeros: la caja que cae desaparece y el agujero pasa a ser piso.
-  Una caja extra por cada agujero.
+  Una caja extra (normal o frágil) por cada agujero.
+* Conteo de cajas (lo valida el Builder): cajas normales + frágiles =
+  destinos + agujeros, y cajas llave = cerrojos. Como cada agujero
+  recibe una sola caja, para ganar hay que llenar todos los agujeros
+  con cajas normales o frágiles; si cae una llave, el nivel ya no se
+  puede ganar y se ofrece Undo o Reiniciar.
 * Portales: van de a pares. Los dos portales de un par tienen el
   MISMO COLOR y cada par usa un color distinto. Solo pasan cajas; la
   caja sale en la dirección del empuje. Si la salida está bloqueada,
@@ -248,13 +257,13 @@ PENDIENTES
 [ ] Mensajes regionales, personajes, logo y voces.
 [ ] Actualizar los bocetos según el punto 6.
 [ ] Diseñar los 6 mapas en TXT y comprobar que tienen solución.
-[ ] Diagrama 7 en StarUML: moverlo a nucleo como "7 - Memento" y armarlo
+[x] Diagrama 7 en StarUML: moverlo a nucleo como "7 - Memento" y armarlo
     con Partida, MementoPartida, EstadoCaja e HistorialPartida.
-[ ] Actualizar Patrones_Comportamiento_TeMU_Express.txt para que el
+[x] Actualizar Patrones_Comportamiento_TeMU_Express.txt para que el
     Undo use solo Memento: prevalece este documento.
-[ ] Rehacer en StarUML los diagramas 4 (Abstract Factory) y 5
+[x] Rehacer en StarUML los diagramas 4 (Abstract Factory) y 5
     (Singleton + Facade) según el punto 7: hoy usan un ejemplo genérico.
-[ ] StarUML: en CajaFragil cambiar resistencia: int = 3 por = 4.
+[x] StarUML: en CajaFragil cambiar resistencia: int = 3 por = 4.
 [ ] Registrar el origen y la licencia de cada asset (música, efectos
     y voces) para justificar el dominio público.
 [ ] README con instrucciones para ejecutar, video de gameplay e

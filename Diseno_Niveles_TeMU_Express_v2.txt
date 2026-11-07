@@ -4,6 +4,18 @@
   Equipo: Los DesubiAmericanos
 =====================================================================
 
+AVISO: DOCUMENTO DE REFERENCIA, NO ES LA VERSIÓN FINAL
+---------------------------------------------------------------------
+Este documento se conserva por la idea de cada región y el
+significado de sus mecánicas. Para el MVP prevalece
+Decisiones_MVP_TeMU_ExpressFinal.txt, que reemplaza:
+  - La tabla de 12 niveles (tres por región): ahora son seis niveles
+    en formato región-subnivel (1-1 ... 4-3), punto 1 de Decisiones.
+  - El reparto de mecánicas por nivel: punto 5 de Decisiones.
+  - La regla de los muros y demás reglas de juego: punto 2 de
+    Decisiones.
+Los mapas TXT se diseñan con Decisiones, no con este documento.
+
 IDEA CENTRAL
 ---------------------------------------------------------------------
 Cada región representa una traba real que sufre un paquete de TeMU al
