@@ -25,11 +25,11 @@ usan el formato región-subnivel:
   4-2 Ecuador - Colombia.
   4-3 Perú - Venezuela.
 
-Cada escenario tiene su propio tablero, personaje, voces, fondo y
-demás recursos. El reparto de mecánicas entre los seis niveles está
-en el punto 5 de Decisiones. Las voces se prepararán con VoiceStudio
-y el juego reproducirá los archivos de la familia regional
-correspondiente.
+Cada región tiene su repartidor, su escenario y su música, que
+entrega su FabricaNivel (Abstract Factory, diagrama 4). El reparto de
+mecánicas entre los seis niveles está en el punto 5 de Decisiones.
+Las voces se prepararon con VoiceStudio; el juego reproduce los
+archivos de assets/audio/voices/<región> con GestorSonido.
 
 
 1. OBSERVER - NOTIFICACIONES DE LOS CAMBIOS DE LA PARTIDA

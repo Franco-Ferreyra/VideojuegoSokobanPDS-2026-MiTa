@@ -5,6 +5,21 @@
   Resumen de lo hablado y definido hasta ahora (18/10/2026)
 =====================================================================
 
+AVISO: DOCUMENTO HISTÓRICO, NO ES LA VERSIÓN FINAL
+---------------------------------------------------------------------
+Este resumen es de la etapa de ideas y se conserva por la consigna,
+la idea del juego y el estilo visual. Para el MVP prevalecen
+Decisiones_MVP_TeMU_ExpressFinal.txt y el diagrama de clases
+(diagramas/TeMUExpress.mdj), que reemplazan:
+  - Los 12 niveles (tres por región): ahora son seis niveles en
+    formato región-subnivel (1-1 ... 4-3).
+  - Las mecánicas, funcionalidades y fórmula de puntaje "a elegir":
+    ya están cerradas en Decisiones (puntos 1 a 5).
+  - Prototype para Undo y Reiniciar: se usa Memento.
+  - Adapter: no se usa.
+  - Los pendientes de los puntos 2, 3 y 9: el estado actual está en
+    los PENDIENTES de Decisiones.
+
 Estado: estamos en la etapa de IDEAS. Lo tecnico (diagrama de clases,
 formato de los .txt de niveles y codigo) se arma cuando tengamos todo
 el diseño del juego definido. Objetivo: arrancar de lleno el lunes.

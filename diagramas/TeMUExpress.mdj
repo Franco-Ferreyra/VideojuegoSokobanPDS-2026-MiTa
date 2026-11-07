@@ -38220,6 +38220,60 @@
 													"height": 13,
 													"text": "+getSpritePiso(): Image",
 													"horizontalAlignment": 0
+												},
+												{
+													"_type": "UMLOperationView",
+													"_id": "AAAAAAGhvDpx4vWsCU2=",
+													"_parent": {
+														"$ref": "AAAAAAGhrPaqRCNTPY0="
+													},
+													"model": {
+														"$ref": "AAAAAAGhFJrB0cVQwzf="
+													},
+													"font": "Arial;13;0",
+													"parentStyle": true,
+													"left": 1277,
+													"top": 1448,
+													"width": 147.326171875,
+													"height": 13,
+													"text": "+getSpriteDestino(): Image",
+													"horizontalAlignment": 0
+												},
+												{
+													"_type": "UMLOperationView",
+													"_id": "AAAAAAGhC3m3RcgFXLr=",
+													"_parent": {
+														"$ref": "AAAAAAGhrPaqRCNTPY0="
+													},
+													"model": {
+														"$ref": "AAAAAAGh62eHHUlyRkX="
+													},
+													"font": "Arial;13;0",
+													"parentStyle": true,
+													"left": 1277,
+													"top": 1463,
+													"width": 147.326171875,
+													"height": 13,
+													"text": "+getSpriteMuroCerrado(): Image",
+													"horizontalAlignment": 0
+												},
+												{
+													"_type": "UMLOperationView",
+													"_id": "AAAAAAGh609Ixfqu5Xo=",
+													"_parent": {
+														"$ref": "AAAAAAGhrPaqRCNTPY0="
+													},
+													"model": {
+														"$ref": "AAAAAAGh4tdv6oOBqgk="
+													},
+													"font": "Arial;13;0",
+													"parentStyle": true,
+													"left": 1277,
+													"top": 1478,
+													"width": 147.326171875,
+													"height": 13,
+													"text": "+getSpriteMuroAbierto(): Image",
+													"horizontalAlignment": 0
 												}
 											],
 											"font": "Arial;13;0",
@@ -38227,7 +38281,7 @@
 											"left": 1272,
 											"top": 1398,
 											"width": 157.326171875,
-											"height": 53
+											"height": 98
 										},
 										{
 											"_type": "UMLReceptionCompartmentView",
@@ -38270,7 +38324,7 @@
 									"left": 1272,
 									"top": 1360,
 									"width": 156.326171875,
-									"height": 91,
+									"height": 136,
 									"nameCompartment": {
 										"$ref": "AAAAAAGhrPaqRCNNkVM="
 									},
@@ -47243,6 +47297,63 @@
 											"_id": "AAAAAAGhrPgJ6iPNCZU=",
 											"_parent": {
 												"$ref": "AAAAAAGhrPfKvSPAoGE="
+											},
+											"type": "Image",
+											"direction": "return"
+										}
+									]
+								},
+								{
+									"_type": "UMLOperation",
+									"_id": "AAAAAAGhFJrB0cVQwzf=",
+									"_parent": {
+										"$ref": "AAAAAAGhrPaqRCNKczU="
+									},
+									"name": "getSpriteDestino",
+									"parameters": [
+										{
+											"_type": "UMLParameter",
+											"_id": "AAAAAAGhMU45SDCVwxE=",
+											"_parent": {
+												"$ref": "AAAAAAGhFJrB0cVQwzf="
+											},
+											"type": "Image",
+											"direction": "return"
+										}
+									]
+								},
+								{
+									"_type": "UMLOperation",
+									"_id": "AAAAAAGh62eHHUlyRkX=",
+									"_parent": {
+										"$ref": "AAAAAAGhrPaqRCNKczU="
+									},
+									"name": "getSpriteMuroCerrado",
+									"parameters": [
+										{
+											"_type": "UMLParameter",
+											"_id": "AAAAAAGhUnILRVTWWAG=",
+											"_parent": {
+												"$ref": "AAAAAAGh62eHHUlyRkX="
+											},
+											"type": "Image",
+											"direction": "return"
+										}
+									]
+								},
+								{
+									"_type": "UMLOperation",
+									"_id": "AAAAAAGh4tdv6oOBqgk=",
+									"_parent": {
+										"$ref": "AAAAAAGhrPaqRCNKczU="
+									},
+									"name": "getSpriteMuroAbierto",
+									"parameters": [
+										{
+											"_type": "UMLParameter",
+											"_id": "AAAAAAGhqzGvquaIki1=",
+											"_parent": {
+												"$ref": "AAAAAAGh4tdv6oOBqgk="
 											},
 											"type": "Image",
 											"direction": "return"

@@ -2,13 +2,16 @@
   DECISIONES DEL MVP - TeMU Express (特穆快递)
   Equipo: Los DesubiAmericanos
   Proceso de Desarrollo de Software - Prof. Jonathan Leonel Pepe
-  Actualizado: 05/11/2026
+  Actualizado: 07/11/2026
 =====================================================================
 
 PRIORIDAD DE ESTE DOCUMENTO
 ---------------------------------------------------------------------
 Este documento reúne las decisiones cerradas por el equipo. Cuando
 otro documento del proyecto diga algo distinto, prevalece este.
+Los nombres de clases y métodos son los del diagrama de clases
+(diagramas/TeMUExpress.mdj); este y los demás documentos los usan
+igual.
 En particular reemplaza:
   - El nombre "Venezuela - Perú" -> ahora es "Perú - Venezuela".
   - El uso de Prototype -> se reemplaza por Memento.
@@ -167,23 +170,30 @@ Obligatorios por pedido del profesor: Strategy, Memento y Singleton.
 Prototype NO se usa (recomendación del profesor).
 
 Creacionales:
-  - Singleton: GestorSonido.
+  - Singleton: GestorSonido, con getInstancia() (diagrama 5).
   - Factory Method: CreadorCaja y creadores concretos.
-  - Abstract Factory: FabricaRegion. Productos: FondoRegional,
-    TableroRegional (pared, piso, destino, terrenos), PersonajeRegional,
-    EstiloHUD (colores de paneles, botones e indicador de Undo),
-    VocesRegionales, SonidosRegionales y MensajesRegionales.
+  - Abstract Factory: FabricaNivel (diagrama 4), con crearRepartidor(),
+    crearEscenario() y crearSonido(). Fábricas: FabricaChina,
+    FabricaEEUU, FabricaAlemania y FabricaSudamerica, que recibe la
+    variante (ARG-CHILE, ECU-COL, PERU-VEN). Productos:
+      AspectoRepartidor: sprite del repartidor según la dirección.
+      Escenario: fondo, pared, piso, destino y muros (cerrado y
+      abierto) de la región.
+      SonidoRegional: música de la región.
     Las cajas NO son regionales: el paquete TeMU es común.
-    FabricaSudamerica recibe la variante (ARG-CHILE, ECU-COL, PERU-VEN).
+    Las voces y los mensajes de cada región no son productos de la
+    fábrica: las voces las reproduce GestorSonido (reproducirVoz) desde
+    assets/audio/voices/<región>, y los mensajes están en
+    textos/mensajes_regionales.md.
   - Builder: ConstructorNivel / ConstructorNivelSokoban, dirigido por
-    LectorNivel.
+    LectorNivel (diagrama 3). Producto: Nivel.
 
 Estructurales:
   - Decorator: Sistema de bonificaciones TeMU (puntaje).
   - Facade: PreparadorNivelFacade. prepararNivel(numero) coordina los
-    subsistemas: LectorNivel (Builder), FabricaRegion (Abstract
+    subsistemas: LectorNivel (Builder), FabricaNivel (Abstract
     Factory) y GestorSonido (música de la región), y devuelve el
-    nivel listo. El controlador solo llama a la fachada.
+    Nivel listo. El controlador solo llama a la fachada (diagrama 5).
   - Bridge: solo documentado. Hay una única vista de juego con el mismo
     layout en todas las regiones; sin editor no existen dos dimensiones
     de variación. Se incorpora si se agrega el editor.
@@ -242,10 +252,11 @@ W = muro, que empieza cerrado; se abre según la regla de cerrojos.
   portal, cinta, resbalar, undo, reinicio, victoria y derrota).
 * Assets de dominio público: solo imágenes y sonidos propios o con
   licencia de dominio público (CC0). Se anota el origen de cada uno
-  en el informe.
+  en ASSETS.md y en el informe.
 * Entregables: repo público en GitHub con README (cómo ejecutar),
-  video de gameplay con todas las funcionalidades, diagrama de clases
-  en StarUML e informe técnico (decisiones de diseño justificadas con
+  video de gameplay con todas las funcionalidades (guion en
+  video/guion_video.md), diagrama de clases en StarUML e informe
+  técnico en informe/informe_tecnico.md (decisiones justificadas con
   SOLID, GRASP, MVC y GoF + declaración del uso de IA).
 * Entrega por mail a jpepe@uade.edu.ar: la envía un integrante, con
   copia al resto, con el nombre del equipo y apellido y nombre de
@@ -254,7 +265,15 @@ W = muro, que empieza cerrado; se abre según la regla de cerrojos.
 
 PENDIENTES
 ---------------------------------------------------------------------
-[ ] Mensajes regionales, personajes, logo y voces.
+[x] Mensajes regionales: textos/mensajes_regionales.md.
+[x] Voces de las 6 regiones: assets/audio/voices.
+[x] Personajes: un repartidor por familia en assets/img/personaje
+    (azul China, amarillo EEUU, rojo Alemania, verde Sudamérica).
+    Nombres en textos/mensajes_regionales.md.
+[x] Sprites de las 6 regiones (pared, piso, destino, muros y cajas):
+    assets/img/<región>.
+[ ] Sprites de cerrojo, agujero, hielo, cinta y portales; fondos,
+    logo y elementos del HUD.
 [ ] Actualizar los bocetos según el punto 6.
 [ ] Diseñar los 6 mapas en TXT y comprobar que tienen solución.
 [x] Diagrama 7 en StarUML: moverlo a nucleo como "7 - Memento" y armarlo
@@ -264,10 +283,14 @@ PENDIENTES
 [x] Rehacer en StarUML los diagramas 4 (Abstract Factory) y 5
     (Singleton + Facade) según el punto 7: hoy usan un ejemplo genérico.
 [x] StarUML: en CajaFragil cambiar resistencia: int = 3 por = 4.
-[ ] Registrar el origen y la licencia de cada asset (música, efectos
-    y voces) para justificar el dominio público.
-[ ] README con instrucciones para ejecutar, video de gameplay e
-    informe técnico.
+[ ] ASSETS.md: registrar el origen y la licencia de cada asset
+    (imágenes, música, efectos y voces) para justificar el dominio
+    público.
+[x] README con la descripción del juego. Falta "Cómo ejecutar" y los
+    nombres de los integrantes.
+[x] Informe técnico (esqueleto con contenido). Faltan los integrantes,
+    ASSETS.md y las conclusiones.
+[x] Guion del video. Falta grabar el video.
 [ ] Borrar HechoPorChatcito_BorrarAntesDeEntrega/ antes de entregar.
 
 Para el informe técnico: declarar la asistencia de IA utilizada.
