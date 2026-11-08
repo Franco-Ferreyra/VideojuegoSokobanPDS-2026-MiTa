@@ -1,0 +1,7 @@
+*.java text eol=lf
+*.md text
+*.xml text eol=lf
+mvnw text eol=lf
+mvnw.cmd text eol=crlf
+/src/test/resources/**/*.txt -text
+/niveles/*.txt -text
