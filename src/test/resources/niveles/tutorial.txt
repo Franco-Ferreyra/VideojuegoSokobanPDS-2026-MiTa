@@ -1,0 +1,13 @@
+REGION=CHINA
+VARIANTE=NINGUNA
+PAR=4
+[TERRENO]
+#######
+#    .#
+#     #
+#######
+[OBJETOS]
+       
+  @$   
+       
+       
