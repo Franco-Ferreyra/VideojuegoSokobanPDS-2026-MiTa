@@ -19,6 +19,8 @@ Decisiones_MVP_TeMU_ExpressFinal.txt y el diagrama de clases
   - Adapter: no se usa.
   - Los pendientes de los puntos 2, 3 y 9: el estado actual está en
     los PENDIENTES de Decisiones.
+  - La resolución base de 320x240: ahora es 432x324 (la de los
+    bocetos), escalada x2. El fondo de cada región es su boceto.
 
 Estado: estamos en la etapa de IDEAS. Lo tecnico (diagrama de clases,
 formato de los .txt de niveles y codigo) se arma cuando tengamos todo
