@@ -212,10 +212,20 @@ public final class DemoSwing implements OyenteVista {
             "caja_fragil_1",
             "caja_fragil_2",
             "caja_fragil_3",
-            "caja_fragil_4"
+            "caja_fragil_4",
+            "cerrojo",
+            "agujero",
+            "hielo",
+            "cinta_arriba",
+            "cinta_abajo",
+            "cinta_izquierda",
+            "cinta_derecha"
         };
         for (String t : tiles) {
             s.poner(t, leer("assets/img/" + region + "/" + t + ".png"));
+        }
+        for (int n = 1; n <= 9; n++) {
+            s.poner("portal_" + n, leer("assets/img/" + region + "/portal_" + n + ".png"));
         }
         s.poner("logo", leer("assets/img/logo.png"));
         for (String d : new String[] {"arriba", "abajo", "izquierda", "derecha", "esqueleto"}) {
