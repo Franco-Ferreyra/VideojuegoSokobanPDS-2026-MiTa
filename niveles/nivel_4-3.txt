@@ -1,0 +1,19 @@
+REGION=SUDAMERICA
+VARIANTE=PERU-VEN
+PAR=95
+[TERRENO]
+#############
+#   ~~1#    #
+#      W  1v#
+#     O#   v#
+#      #   .#
+# L    #  ..#
+#############
+[OBJETOS]
+             
+  $          
+ @           
+  K F        
+   $ $       
+             
+             

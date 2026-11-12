@@ -1,0 +1,19 @@
+REGION=EEUU
+VARIANTE=NINGUNA
+PAR=26
+[TERRENO]
+#############
+#    #      #
+#    W    . #
+#    #      #
+# L  #    . #
+#    ####   #
+#############
+[OBJETOS]
+             
+             
+  K    F     
+        $    
+             
+   @         
+             
