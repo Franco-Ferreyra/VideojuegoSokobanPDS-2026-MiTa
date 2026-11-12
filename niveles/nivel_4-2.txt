@@ -1,0 +1,19 @@
+REGION=SUDAMERICA
+VARIANTE=ECU-COL
+PAR=62
+[TERRENO]
+#############
+#     #  .  #
+#    >>>>   #
+#     #     #
+#   L W  .  #
+#     #  .  #
+#############
+[OBJETOS]
+             
+             
+    F        
+  $ $        
+  K          
+ @           
+             

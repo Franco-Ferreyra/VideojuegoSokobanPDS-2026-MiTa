@@ -1,0 +1,19 @@
+REGION=SUDAMERICA
+VARIANTE=ARG-CHILE
+PAR=70
+[TERRENO]
+#############
+#     ####  #
+#   ~~~~~W .#
+#       L# .#
+#   ~~~~~W .#
+#   O    #  #
+#############
+[OBJETOS]
+             
+             
+  $          
+ @ K $       
+  $          
+  $          
+             
