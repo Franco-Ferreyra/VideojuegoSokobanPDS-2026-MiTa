@@ -1,0 +1,19 @@
+REGION=ALEMANIA
+VARIANTE=NINGUNA
+PAR=46
+[TERRENO]
+#############
+#    #      #
+#    O  .   #
+#    #    . #
+#    O  .   #
+#    #      #
+#############
+[OBJETOS]
+             
+             
+  $          
+ @$$    F    
+  $          
+             
+             
