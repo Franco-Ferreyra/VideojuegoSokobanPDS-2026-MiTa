@@ -2,7 +2,7 @@
   DECISIONES DEL MVP - TeMU Express (特穆快递)
   Equipo: Los DesubiAmericanos
   Proceso de Desarrollo de Software - Prof. Jonathan Leonel Pepe
-  Actualizado: 07/11/2026
+  Actualizado: 12/11/2026
 =====================================================================
 
 PRIORIDAD DE ESTE DOCUMENTO
@@ -263,35 +263,73 @@ W = muro, que empieza cerrado; se abre según la regla de cerrojos.
   cada integrante.
 
 
-PENDIENTES
+PENDIENTES (estado al 12/11/2026)
 ---------------------------------------------------------------------
+Diseño y documentos:
+[x] Diagramas de clases en StarUML (los 10, con sus PNG en
+    diagramas/png). Incluye el 7 (Memento), el 4 (Abstract Factory),
+    el 5 (Singleton + Facade) y CajaFragil con resistencia = 4.
+[x] Patrones_Comportamiento_TeMU_Express.txt: Undo solo con Memento.
+[x] Bocetos (punto 6): los cambios se aplicaron en los sprites y en la
+    vista (muro cerrado y abierto, frágil con 4 estados, caja llave
+    distinta, NIVEL región-subnivel, 1UP en 000000, tablero 13x7). Los
+    JPG de bocetos/ quedan como referencia del estilo.
 [x] Mensajes regionales: textos/mensajes_regionales.md.
-[x] Voces de las 6 regiones: assets/audio/voices.
-[x] Personajes: un repartidor por familia en assets/img/personaje
-    (azul China, amarillo EEUU, rojo Alemania, verde Sudamérica).
-    Nombres en textos/mensajes_regionales.md.
-[x] Sprites de las 6 regiones (pared, piso, destino, muros y cajas):
-    assets/img/<región>.
-[ ] Sprites de cerrojo, agujero, hielo, cinta y portales; fondos,
-    logo y elementos del HUD.
-[ ] Actualizar los bocetos según el punto 6.
-[ ] Diseñar los 6 mapas en TXT y comprobar que tienen solución.
-[x] Diagrama 7 en StarUML: moverlo a nucleo como "7 - Memento" y armarlo
-    con Partida, MementoPartida, EstadoCaja e HistorialPartida.
-[x] Actualizar Patrones_Comportamiento_TeMU_Express.txt para que el
-    Undo use solo Memento: prevalece este documento.
-[x] Rehacer en StarUML los diagramas 4 (Abstract Factory) y 5
-    (Singleton + Facade) según el punto 7: hoy usan un ejemplo genérico.
-[x] StarUML: en CajaFragil cambiar resistencia: int = 3 por = 4.
+[x] Guion del video: video/guion_video.md. Falta grabarlo.
+[ ] README: falta "Cómo ejecutar" (los comandos actuales están en
+    docs/MOTOR_BASICO.md) y los nombres de los integrantes.
+[ ] Informe técnico (esqueleto con contenido): faltan los integrantes,
+    las secciones [PENDIENTE], las conclusiones y las herramientas.
 [ ] ASSETS.md: registrar el origen y la licencia de cada asset
     (imágenes, música, efectos y voces) para justificar el dominio
-    público.
-[x] README con la descripción del juego. Falta "Cómo ejecutar" y los
-    nombres de los integrantes.
-[x] Informe técnico (esqueleto con contenido). Faltan los integrantes,
-    ASSETS.md y las conclusiones.
-[x] Guion del video. Falta grabar el video.
+    público. Revisar la licencia de las voces (VoiceStudio, con IA).
+
+Assets:
+[x] Personajes: un repartidor por familia en assets/img/personaje
+    (azul China, amarillo EEUU, rojo Alemania, verde Sudamérica), con
+    su esqueleto para la derrota. Nombres en
+    textos/mensajes_regionales.md.
+[x] Sprites de las 6 regiones (pared, piso, destino, muros y cajas):
+    assets/img/<región>.
+[x] Sprites de cerrojo, agujero, hielo, cinta (4 direcciones) y
+    portales (un color por par, 1 a 9): comunes a todas las regiones,
+    en assets/img/<región> como las cajas. Fondos de cada región
+    (sacados de los bocetos, con el HUD dibujado) y logo en assets/img.
+[x] Audio: música de las 4 familias, 17 efectos y voces de las 6
+    regiones en assets/audio.
+
+Niveles:
+[x] Los 6 mapas TXT con su solución comprobada y el PAR:
+    niveles/nivel_1-1.txt a nivel_4-3.txt y niveles/SOLUCIONES.md
+    (PR #3, rama mapas). Volver a comprobarlos cuando el motor tenga
+    las mecánicas, por si alguna regla quedó distinta (ver el final
+    de SOLUCIONES.md).
+
+Código (proyecto Maven, src/main/java/temuexpress):
+[x] Motor básico: LectorNivel + ConstructorNivelSokoban (Builder),
+    CreadorCajaNormal (Factory Method), EstrategiaNormal (Strategy),
+    movimiento, empuje, victoria, Undo con Memento y reinicio, con 29
+    pruebas (docs/MOTOR_BASICO.md).
+[x] Vista Swing (temuexpress.vista): inicio, mensaje, juego, resumen,
+    derrota y final, con el fondo de cada región. DTO en modelo.dto.
+[ ] Mecánicas: caja llave, cerrojo y muros, caja frágil, agujeros,
+    hielo, cinta y portales (con sus estrategias y creadores de caja).
+[ ] Patrones que faltan: Observer (ObservadorPartida), Decorator
+    (puntaje y bonificaciones), Facade (PreparadorNivelFacade),
+    Singleton (GestorSonido) y Abstract Factory (FabricaNivel y las 4
+    fábricas).
+[ ] Conectar ControladorJuego con VentanaJuego: los 6 niveles en
+    orden, mensajes regionales, resumen y 1UP. Después borrar la demo
+    temporal (temuexpress.demo.DemoSwing).
+[ ] Acordar cómo llega la caja frágil en TableroDTO: "F" o la
+    resistencia que le queda (4 a 1). La vista acepta los dos.
+[ ] Confirmar el reinicio: hoy pone en 0 movimientos, empujes y usos
+    de Undo (interpretación del back, ver docs/MOTOR_BASICO.md).
+
+Entrega:
+[ ] Grabar el video de gameplay.
 [ ] Borrar HechoPorChatcito_BorrarAntesDeEntrega/ antes de entregar.
+[ ] Mandar el mail a jpepe@uade.edu.ar (punto 9).
 
 Para el informe técnico: declarar la asistencia de IA utilizada.
 =====================================================================
