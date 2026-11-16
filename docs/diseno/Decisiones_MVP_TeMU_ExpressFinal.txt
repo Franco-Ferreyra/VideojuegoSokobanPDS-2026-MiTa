@@ -10,7 +10,7 @@ PRIORIDAD DE ESTE DOCUMENTO
 Este documento reúne las decisiones cerradas por el equipo. Cuando
 otro documento del proyecto diga algo distinto, prevalece este.
 Los nombres de clases y métodos son los del diagrama de clases
-(diagramas/TeMUExpress.mdj); este y los demás documentos los usan
+(docs/diagramas/TeMUExpress.mdj); este y los demás documentos los usan
 igual.
 En particular reemplaza:
   - El nombre "Venezuela - Perú" -> ahora es "Perú - Venezuela".
@@ -184,7 +184,7 @@ Creacionales:
     Las voces y los mensajes de cada región no son productos de la
     fábrica: las voces las reproduce GestorSonido (reproducirVoz) desde
     assets/audio/voices/<región>, y los mensajes están en
-    textos/mensajes_regionales.md.
+    docs/textos/mensajes_regionales.md.
   - Builder: ConstructorNivel / ConstructorNivelSokoban, dirigido por
     LectorNivel (diagrama 3). Producto: Nivel.
 
@@ -255,8 +255,8 @@ W = muro, que empieza cerrado; se abre según la regla de cerrojos.
   en ASSETS.md y en el informe.
 * Entregables: repo público en GitHub con README (cómo ejecutar),
   video de gameplay con todas las funcionalidades (guion en
-  video/guion_video.md), diagrama de clases en StarUML e informe
-  técnico en informe/informe_tecnico.md (decisiones justificadas con
+  docs/video/guion_video.md), diagrama de clases en StarUML e informe
+  técnico en docs/informe/informe_tecnico.md (decisiones justificadas con
   SOLID, GRASP, MVC y GoF + declaración del uso de IA).
 * Entrega por mail a jpepe@uade.edu.ar: la envía un integrante, con
   copia al resto, con el nombre del equipo y apellido y nombre de
@@ -267,30 +267,30 @@ PENDIENTES (estado al 16/11/2026)
 ---------------------------------------------------------------------
 Diseño y documentos:
 [x] Diagramas de clases en StarUML (los 11, del 0 al 10, con sus PNG
-    en diagramas/png), alineados con el código. El 10 (Fondo animado)
+    en docs/diagramas/png), alineados con el código. El 10 (Fondo animado)
     muestra FondoAnimado, Capa y sus 8 capas.
 [x] Patrones_Comportamiento_TeMU_Express.txt: Undo solo con Memento.
 [x] Bocetos (punto 6): los cambios se aplicaron en los sprites y en la
     vista (muro cerrado y abierto, frágil con 4 estados, caja llave
     distinta, NIVEL región-subnivel, 1UP en 000000, tablero 13x7). Los
-    JPG de bocetos/ quedan como referencia del estilo.
-[x] Mensajes regionales: textos/mensajes_regionales.md.
-[x] Guion del video: video/guion_video.md. Falta grabarlo.
+    JPG de docs/bocetos/ quedan como referencia del estilo.
+[x] Mensajes regionales: docs/textos/mensajes_regionales.md.
+[x] Guion del video: docs/video/guion_video.md. Falta grabarlo.
 [x] README: "Cómo ejecutar" (JDK 21, mvnw y java -jar).
 [x] README: integrantes del equipo.
-[x] Informe técnico completo en informe/informe_tecnico.md (incluye
+[x] Informe técnico completo en docs/informe/informe_tecnico.md (incluye
     la declaración del uso de IA y las conclusiones).
 [x] ASSETS.md: origen y licencia de cada asset. Imágenes propias y
     audio hecho por un integrante con su propia voz y VoiceStudio;
     todo se libera como dominio público (CC0).
-[x] textos/mensajes_regionales.md con los textos del juego y
-    docs/MOTOR_BASICO.md con las mecánicas.
+[x] docs/textos/mensajes_regionales.md con los textos del juego y
+    docs/motor/MOTOR_BASICO.md con las mecánicas.
 
 Assets:
 [x] Personajes: un repartidor por familia en assets/img/personaje
     (azul China, amarillo EEUU, rojo Alemania, verde Sudamérica), con
     su esqueleto para la derrota. Nombres en
-    textos/mensajes_regionales.md.
+    docs/textos/mensajes_regionales.md.
 [x] Sprites de las 6 regiones (pared, piso, destino, muros y cajas):
     assets/img/<región>.
 [x] Sprites de cerrojo, agujero, hielo, cinta (4 direcciones) y
@@ -329,7 +329,8 @@ Código (proyecto Maven, src/main/java/temuexpress):
 
 Entrega:
 [ ] Grabar el video de gameplay.
-[ ] Borrar HechoPorChatcito_BorrarAntesDeEntrega/ antes de entregar.
+[x] Repo ordenado: documentación en docs/ (con índice) y borrada la
+    carpeta temporal del borrador PlantUML.
 [ ] Mandar el mail a jpepe@uade.edu.ar (punto 9).
 
 Para el informe técnico: declarar la asistencia de IA utilizada.

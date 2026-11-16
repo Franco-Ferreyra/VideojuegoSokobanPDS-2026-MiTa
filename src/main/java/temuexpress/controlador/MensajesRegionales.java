@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Textos de cada nivel: páginas del mensaje de inicio (historia del repartidor y la misión), frases
  * del repartidor al perder, al entregar una caja y cuando una caja cae a un agujero. Base:
- * textos/mensajes_regionales.md.
+ * docs/textos/mensajes_regionales.md.
  */
 final class MensajesRegionales {
 

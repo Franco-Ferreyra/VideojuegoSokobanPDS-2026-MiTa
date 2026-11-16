@@ -1,6 +1,6 @@
 # Soluciones de los niveles
 
-Cada mapa se comprobó con un programa que busca la solución y la repite paso a paso hasta la victoria, con las reglas del punto 2 de `Decisiones_MVP_TeMU_ExpressFinal.txt` (detalle abajo). Este archivo lo pide `docs/FORMATO_NIVELES.md`.
+Cada mapa se comprobó con un programa que busca la solución y la repite paso a paso hasta la victoria, con las reglas del punto 2 de `Decisiones_MVP_TeMU_ExpressFinal.txt` (detalle abajo). Este archivo lo pide `docs/motor/FORMATO_NIVELES.md`.
 
 - **Secuencia:** A arriba, B abajo, I izquierda, D derecha (las mismas letras que la consola del motor). Va en grupos de 10 para leerla mejor.
 - **PAR:** movimientos de la solución más un 20 % de margen, redondeado hacia arriba.

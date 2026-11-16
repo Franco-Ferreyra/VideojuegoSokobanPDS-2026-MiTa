@@ -21,7 +21,7 @@ La clase principal es `temuexpress.Aplicacion`:
 
 ## Arquitectura y contratos
 
-Los nombres se tomaron de `diagramas/TeMUExpress.mdj` y las reglas de `Decisiones_MVP_TeMU_ExpressFinal.txt`.
+Los nombres se tomaron de `docs/diagramas/TeMUExpress.mdj` y las reglas de `Decisiones_MVP_TeMU_ExpressFinal.txt`.
 
 - `modelo.nucleo`: `Nivel`, `Tablero`, `Celda`, `Posicion`, `Direccion`, los terrenos (`Piso`, `Pared`, `Destino`, `Cerrojo`, `Muro`, `Agujero`, `Hielo`, `Cinta`, `Portal`), las cajas (`CajaNormal`, `CajaFragil`, `CajaLlave`), `Partida`, `MementoPartida`, `EstadoCaja` e `HistorialPartida`.
 - `modelo.creacion`: `LectorNivel` dirige `ConstructorNivel` / `ConstructorNivelSokoban` (Builder). `CreadorCajaNormal`, `CreadorCajaFragil` y `CreadorCajaLlave` implementan Factory Method. `PreparadorNivelFacade` (Facade) lee el nivel y elige la fábrica regional.

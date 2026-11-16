@@ -13,7 +13,7 @@
 
 **Repositorio:** https://github.com/Franco-Ferreyra/VideojuegoSokobanPDS-2026-MiTa
 
-> Fuente principal: `Decisiones_MVP_TeMU_ExpressFinal.txt`, que prevalece sobre los demás documentos. Los nombres de clases y métodos coinciden con `diagramas/TeMUExpress.mdj` y con el código.
+> Fuente principal: `Decisiones_MVP_TeMU_ExpressFinal.txt`, que prevalece sobre los demás documentos. Los nombres de clases y métodos coinciden con `docs/diagramas/TeMUExpress.mdj` y con el código.
 
 ---
 
@@ -120,7 +120,7 @@ Ejemplo con 80 movimientos, 20 empujes, 1 Undo y par 90:
 
 ## 4. Arquitectura MVC (Clase 6)
 
-Diagrama: `diagramas/png/0 - Paquetes MVC.png`.
+Diagrama: `docs/diagramas/png/0 - Paquetes MVC.png`.
 
 | Paquete | Responsabilidad | Contenido |
 |---|---|---|
@@ -149,7 +149,7 @@ La comunicación vista → controlador va por la interfaz `OyenteVista` (`alPres
 
 ## 5. Modelo del núcleo (diagrama 1)
 
-Diagrama: `diagramas/png/1 - Núcleo del modelo.png`.
+Diagrama: `docs/diagramas/png/1 - Núcleo del modelo.png`.
 
 - **Estructura:** `Partida` contiene un `Tablero`. El `Tablero` es una grilla de `Celda`, y cada celda tiene un `Terreno` y, a lo sumo, una `Caja`.
 - **`Terreno`** es una interfaz implementada por `Piso`, `Pared`, `Destino`, `Cerrojo`, `Muro`, `Agujero`, `Hielo`, `Cinta` y `Portal`. Cada terreno responde por sí mismo:
@@ -167,7 +167,7 @@ Gracias al polimorfismo, `Partida` no tiene un `switch` por tipo de terreno ni d
 
 ## 6. Patrones de diseño
 
-Cada patrón tiene su diagrama en `diagramas/png/` (11 diagramas, del 0 al 10). Strategy, Memento y Singleton son obligatorios por pedido del profesor. Prototype no se usa, por recomendación del profesor, y Command tampoco: Undo y Reiniciar se resuelven solo con Memento.
+Cada patrón tiene su diagrama en `docs/diagramas/png/` (11 diagramas, del 0 al 10). Strategy, Memento y Singleton son obligatorios por pedido del profesor. Prototype no se usa, por recomendación del profesor, y Command tampoco: Undo y Reiniciar se resuelven solo con Memento.
 
 La justificación de cada patrón sigue a Shvets, *Dive Into Design Patterns*: para cada uno se indica el problema, la solución y el principio que lo respalda.
 
@@ -204,7 +204,7 @@ La justificación de cada patrón sigue a Shvets, *Dive Into Design Patterns*: p
   - Conteo de cajas: llaves = cerrojos, y muros solo si hay cerrojos.
   - Portales emparejados.
   - Cintas, hielo y portales que no formen un ciclo.
-- **Formato TXT** (`docs/FORMATO_NIVELES.md`):
+- **Formato TXT** (`docs/motor/FORMATO_NIVELES.md`):
   - Encabezado con `REGION`, `VARIANTE` y `PAR`.
   - Capa `[TERRENO]`: `#` pared, espacio piso, `.` destino, `L` cerrojo, `W` muro, `O` agujero, `~` hielo, `> < ^ v` cinta y `1-9` portales.
   - Capa `[OBJETOS]`: `@` jugador, `$` caja normal, `F` caja frágil y `K` caja llave.
@@ -298,7 +298,7 @@ Hay una sola vista de juego con el mismo layout en todas las regiones. Sin un ed
   - Agregar un efecto nuevo es agregar una clase que implemente `Capa`, sin tocar las demás (OCP). La vista solo conoce la interfaz `AnimacionFondo` (programar contra una interfaz), y el fondo se arma por composición de capas en lugar de herencia.
   - El tablero y el HUD no se animan: una prueba lo verifica.
 - **Portada animada:** el logo flota con un brillo que lo cruza y "ENTER para empezar" titila.
-- **Historia de los repartidores:** cada nivel abre con la historia del repartidor de la región, y el repartidor comenta las entregas, las caídas y las derrotas con frases propias (`textos/mensajes_regionales.md`).
+- **Historia de los repartidores:** cada nivel abre con la historia del repartidor de la región, y el repartidor comenta las entregas, las caídas y las derrotas con frases propias (`docs/textos/mensajes_regionales.md`).
 - **Audio con prioridades:** las voces y los efectos no se pisan (sección 6.4).
 
 ## 8. Principios SOLID
@@ -334,7 +334,7 @@ Además se aplicaron los principios generales de Shvets: **encapsular lo que var
 - **Formato:** Spotless con Google Java Format (estilo AOSP).
 - **Análisis estático:** SpotBugs con esfuerzo máximo, umbral bajo y sin exclusiones.
 - `mvnw clean verify` corre los tres controles; si alguno falla, el build falla.
-- **Diseño:** StarUML (`diagramas/TeMUExpress.mdj`, 11 diagramas con sus PNG).
+- **Diseño:** StarUML (`docs/diagramas/TeMUExpress.mdj`, 11 diagramas con sus PNG).
 - **Control de versiones:** Git y GitHub.
 - **Assets:** Python con Pillow para generar los sprites, y VoiceStudio para el audio.
 

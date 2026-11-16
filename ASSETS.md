@@ -10,7 +10,7 @@ Todas son propias del equipo, en pixel art. Se liberan como dominio público (CC
 
 | Archivos | Qué son | Origen |
 |---|---|---|
-| `<región>/` (28 por región: `china`, `usa`, `alemania`, `arg_chile`, `ecuador_colombia`, `peru_venezuela`) | Tiles de 16x16 (pared, piso, destino, muros, cajas, cerrojo, agujero, hielo, cintas y portales) | Dibujados a partir de los bocetos del grupo (`bocetos/`). Los sprites se generaron con scripts de Python (Pillow) hechos por el equipo con asistencia de IA. |
+| `<región>/` (28 por región: `china`, `usa`, `alemania`, `arg_chile`, `ecuador_colombia`, `peru_venezuela`) | Tiles de 16x16 (pared, piso, destino, muros, cajas, cerrojo, agujero, hielo, cintas y portales) | Dibujados a partir de los bocetos del grupo (`docs/bocetos/`). Los sprites se generaron con scripts de Python (Pillow) hechos por el equipo con asistencia de IA. |
 | `<región>/fondo.png` | Fondo de cada región con el HUD dibujado | Bocetos del grupo, normalizados a 432x324. En Perú - Venezuela se sacaron los helicópteros del dibujo porque ahora son sprites animados. |
 | `<región>/anim/` | Sprites del fondo animado (nubes, farolitos, avioneta, zepelín, avión, loros, helicópteros, cóndor) | Generados por el equipo con un script de Python (Pillow). |
 | `personaje/repartidor_{azul,amarillo,rojo,verde}/` | Repartidor en 4 direcciones y su esqueleto | Diseño de un integrante del grupo, pasado a pixel art. |

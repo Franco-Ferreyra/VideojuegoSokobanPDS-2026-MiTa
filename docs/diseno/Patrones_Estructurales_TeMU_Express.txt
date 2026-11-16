@@ -12,7 +12,7 @@ Tres patrones estructurales de las clases 10 y 11:
   - Bridge: solo documentado (no hay dos dimensiones de variación).
 
 Los nombres de clases y métodos son los del diagrama de clases
-(diagramas/TeMUExpress.mdj): 5 - Singleton + Facade y 9 - Decorator.
+(docs/diagramas/TeMUExpress.mdj): 5 - Singleton + Facade y 9 - Decorator.
 Prevalece Decisiones_MVP_TeMU_ExpressFinal.txt.
 
 
@@ -166,7 +166,7 @@ RELACIÓN CON EL RESTO DEL DISEÑO
 FUENTES
 ---------------------------------------------------------------------
   - Decisiones_MVP_TeMU_ExpressFinal.txt: prevalece sobre el resto.
-  - Diagramas 5 y 9 (diagramas/TeMUExpress.mdj y diagramas/png).
+  - Diagramas 5 y 9 (docs/diagramas/TeMUExpress.mdj y docs/diagramas/png).
   - Teoría: Clase 10 (Decorator) y Clase 11 (Bridge y Facade).
 
 Para el informe técnico: declarar la asistencia de IA utilizada,

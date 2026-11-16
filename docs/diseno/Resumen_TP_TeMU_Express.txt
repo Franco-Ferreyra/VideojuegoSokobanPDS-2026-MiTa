@@ -10,7 +10,7 @@ AVISO: DOCUMENTO HISTÓRICO, NO ES LA VERSIÓN FINAL
 Este resumen es de la etapa de ideas y se conserva por la consigna,
 la idea del juego y el estilo visual. Para el MVP prevalecen
 Decisiones_MVP_TeMU_ExpressFinal.txt y el diagrama de clases
-(diagramas/TeMUExpress.mdj), que reemplazan:
+(docs/diagramas/TeMUExpress.mdj), que reemplazan:
   - Los 12 niveles (tres por región): ahora son seis niveles en
     formato región-subnivel (1-1 ... 4-3).
   - Las mecánicas, funcionalidades y fórmula de puntaje "a elegir":

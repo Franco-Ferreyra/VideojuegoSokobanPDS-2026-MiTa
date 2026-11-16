@@ -13,7 +13,7 @@ Undo y Reiniciar se resuelven con Memento (ver
 Patrones_Comportamiento_TeMU_Express.txt).
 
 Los nombres de clases y métodos son los del diagrama de clases
-(diagramas/TeMUExpress.mdj): 2 - Factory Method, 3 - Builder,
+(docs/diagramas/TeMUExpress.mdj): 2 - Factory Method, 3 - Builder,
 4 - Abstract Factory y 5 - Singleton + Facade.
 Prevalece Decisiones_MVP_TeMU_ExpressFinal.txt.
 
@@ -154,7 +154,7 @@ Qué NO es producto de la fábrica:
   - Las cajas: el paquete TeMU es común a todas las regiones.
   - Las voces: las reproduce GestorSonido desde
     assets/audio/voices/<región>.
-  - Los mensajes: están en textos/mensajes_regionales.md.
+  - Los mensajes: están en docs/textos/mensajes_regionales.md.
 
 Justificación y límite:
 Permite cambiar una familia completa conservando su coherencia.
@@ -240,8 +240,8 @@ un producto, creación de familias y armado por pasos.
 FUENTES
 ---------------------------------------------------------------------
   - Decisiones_MVP_TeMU_ExpressFinal.txt: prevalece sobre el resto.
-  - Diagramas 2, 3, 4 y 5 (diagramas/TeMUExpress.mdj y
-    diagramas/png).
+  - Diagramas 2, 3, 4 y 5 (docs/diagramas/TeMUExpress.mdj y
+    docs/diagramas/png).
   - Teoría: Clase 8 (Singleton, Factory Method y Abstract Factory) y
     Clase 9 (Builder).
 

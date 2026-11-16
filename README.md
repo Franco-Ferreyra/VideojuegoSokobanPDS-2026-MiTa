@@ -37,14 +37,29 @@ java -jar target/temu-express-0.1.0-SNAPSHOT.jar niveles/nivel_1-1.txt
 ```
 Para correr solo las verificaciones: `.\mvnw.cmd clean verify` (JUnit, Spotless con Google Java Format AOSP y SpotBugs).
 
+### Estructura del repositorio
+```
+├── src/main/java/temuexpress/   Código del juego (MVC)
+│   ├── modelo/                  Reglas: núcleo, creación, estrategias, puntaje, observador y DTO
+│   ├── vista/                   Pantallas Swing
+│   ├── controlador/             Flujo de los niveles y observadores
+│   └── recursos/                Fábricas regionales, sonido y fondo animado
+├── src/test/                    Pruebas JUnit
+├── assets/                      Imágenes y audio del juego (ver ASSETS.md)
+├── niveles/                     Los 6 niveles en TXT y sus soluciones verificadas
+├── docs/                        Documentación del TP (índice en docs/README.md)
+├── ASSETS.md                    Origen y licencia de cada asset
+└── pom.xml, mvnw, mvnw.cmd      Build con Maven
+```
+
 ### Documentación
-- `Decisiones_MVP_TeMU_ExpressFinal.txt`: decisiones cerradas del equipo, que prevalecen sobre el resto.
-- `Patrones_*_TeMU_Express.txt`: patrones creacionales, estructurales y de comportamiento.
-- `diagramas/TeMUExpress.mdj`: diagramas de clases en StarUML. Los PNG están en `diagramas/png/`.
-- `informe/informe_tecnico.md`: informe técnico.
-- `textos/mensajes_regionales.md`: mensajes de cada nivel y personajes.
-- `video/guion_video.md`: guion del video de gameplay.
-- `docs/MOTOR_BASICO.md` y `docs/FORMATO_NIVELES.md`: motor y formato de los niveles.
+- `docs/informe/informe_tecnico.md`: informe técnico.
+- `docs/diagramas/TeMUExpress.mdj`: diagramas de clases en StarUML. Los PNG están en `docs/diagramas/png/`.
+- `docs/diseno/`: decisiones del equipo (`Decisiones_MVP_TeMU_ExpressFinal.txt`, que prevalecen sobre el resto), diseño de niveles y patrones.
+- `docs/motor/`: funcionamiento del motor y formato de los niveles.
+- `docs/textos/mensajes_regionales.md`: mensajes de cada nivel y personajes.
+- `docs/video/guion_video.md`: guion del video de gameplay.
+- `docs/bocetos/`: bocetos de cada nivel.
 - `niveles/SOLUCIONES.md`: solución verificada de cada nivel y reglas de las mecánicas.
 
 ### Assets

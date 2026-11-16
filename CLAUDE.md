@@ -24,16 +24,16 @@ Actualizado: 16/11/2026.
 
 ## 3. Documentos y prioridad
 
-1. **`Decisiones_MVP_TeMU_ExpressFinal.txt`** — manda sobre todo. Tiene la sección PENDIENTES (Diseño / Assets / Niveles / Código / Entrega). Archivo con CRLF: preservarlo.
-2. **`diagramas/TeMUExpress.mdj`** (StarUML) — los nombres de clases y métodos salen de acá. 11 diagramas (0 a 10); PNGs exportados en `diagramas/png/`.
-3. `docs/MOTOR_BASICO.md`, `docs/FORMATO_NIVELES.md` — docs del back (compañero).
+1. **`docs/diseno/Decisiones_MVP_TeMU_ExpressFinal.txt`** — manda sobre todo. Tiene la sección PENDIENTES (Diseño / Assets / Niveles / Código / Entrega). Archivo con CRLF: preservarlo.
+2. **`docs/diagramas/TeMUExpress.mdj`** (StarUML) — los nombres de clases y métodos salen de acá. 11 diagramas (0 a 10); PNGs exportados en `docs/diagramas/png/`.
+3. `docs/motor/MOTOR_BASICO.md`, `docs/motor/FORMATO_NIVELES.md` — motor y formato de niveles.
 4. `niveles/SOLUCIONES.md` — soluciones y reglas de mecánicas.
-5. Otros: `README.md`, `ASSETS.md` (origen y licencia de los assets), `informe/informe_tecnico.md`, `video/guion_video.md`, `textos/mensajes_regionales.md`, `Patrones_*.txt`, `Resumen_TP*` (histórico), `Diseno_Niveles_v2*` (referencia), `bocetos/`.
-6. `HechoPorChatcito_BorrarAntesDeEntrega/` — borrar antes de entregar.
+5. Otros: `README.md`, `ASSETS.md` (origen y licencia de los assets), `docs/informe/informe_tecnico.md`, `docs/video/guion_video.md`, `docs/textos/mensajes_regionales.md`, `docs/diseno/` (`Patrones_*.txt`, `Resumen_TP*` resumen de la consigna, `Diseno_Niveles_v2*`), `docs/bocetos/` (uno por nivel). Índice en `docs/README.md`.
+6. Raíz: solo `README.md`, `ASSETS.md`, `CLAUDE.md`, build Maven, `assets/` y `niveles/` (el juego los lee desde la raíz: no moverlos) y `src/`.
 
 Exportar diagramas desde CLI:
 ```
-"C:\Program Files\StarUML\StarUML.exe" image diagramas/TeMUExpress.mdj -f png -s "@UMLClassDiagram" -o "diagramas/png/<%=element.name%>.png"
+"C:\Program Files\StarUML\StarUML.exe" image docs/diagramas/TeMUExpress.mdj -f png -s "@UMLClassDiagram" -o "docs/diagramas/png/<%=element.name%>.png"
 ```
 
 ## 4. Build, tests y ejecución
@@ -72,7 +72,7 @@ Paquetes en `src/main/java/temuexpress/`:
 
 ## 6. Niveles
 
-Formato (`docs/FORMATO_NIVELES.md`): cabeceras `REGION=`, `VARIANTE=`, `PAR=`, luego `[TERRENO]` y `[OBJETOS]`. Máximo 13x7, cada espacio cuenta. `.gitattributes`: `/niveles/*.txt -text`.
+Formato (`docs/motor/FORMATO_NIVELES.md`): cabeceras `REGION=`, `VARIANTE=`, `PAR=`, luego `[TERRENO]` y `[OBJETOS]`. Máximo 13x7, cada espacio cuenta. `.gitattributes`: `/niveles/*.txt -text`.
 - Terreno: `#` pared, `.` destino, `L` cerrojo, `W` muro, `O` agujero, `~` hielo, `> < ^ v` cintas, `1-9` portales (de a pares).
 - Objetos: `@` jugador, `$` caja normal, `F` caja frágil, `K` caja llave.
 
@@ -106,9 +106,9 @@ PAR = solución × 1.2 redondeado arriba. 1-1 a 4-2 son óptimos en movimientos;
 
 ## 8. Qué falta para entregar
 
-- Grabar el video (guion en `video/guion_video.md`).
-- Borrar `HechoPorChatcito_BorrarAntesDeEntrega/` y mandar el mail a jpepe@uade.edu.ar.
-- Ver la sección PENDIENTES de `Decisiones_MVP_TeMU_ExpressFinal.txt`.
+- Grabar el video (guion en `docs/video/guion_video.md`).
+- Mandar el mail a jpepe@uade.edu.ar.
+- Ver la sección PENDIENTES de `docs/diseno/Decisiones_MVP_TeMU_ExpressFinal.txt`.
 
 ## 9. Herramientas auxiliares (fuera del repo, pueden no existir en otra sesión)
 

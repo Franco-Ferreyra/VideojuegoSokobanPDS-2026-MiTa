@@ -283,7 +283,7 @@ Documentos considerados:
     creación de cajas y armado de niveles.
   - Patrones_Estructurales_TeMU_Express.txt: puntaje, presentación y
     preparación del nivel.
-  - Diagramas de clases en StarUML (diagramas/TeMUExpress.mdj).
+  - Diagramas de clases en StarUML (docs/diagramas/TeMUExpress.mdj).
 
 Las reglas que antes figuraban como pendientes (reparto de mecánicas,
 resistencia de la caja frágil, regla de muros, contadores al deshacer
