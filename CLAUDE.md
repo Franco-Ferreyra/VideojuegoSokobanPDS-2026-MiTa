@@ -106,7 +106,6 @@ PAR = solución × 1.2 redondeado arriba. 1-1 a 4-2 son óptimos en movimientos;
 
 ## 8. Qué falta para entregar
 
-- Informe técnico: integrantes, secciones [PENDIENTE], patrones, extras (fondos animados, audio), herramientas, conclusiones y declaración del uso de IA.
 - Grabar el video (guion en `video/guion_video.md`).
 - Borrar `HechoPorChatcito_BorrarAntesDeEntrega/` y mandar el mail a jpepe@uade.edu.ar.
 - Ver la sección PENDIENTES de `Decisiones_MVP_TeMU_ExpressFinal.txt`.

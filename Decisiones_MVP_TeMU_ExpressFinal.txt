@@ -278,8 +278,8 @@ Diseño y documentos:
 [x] Guion del video: video/guion_video.md. Falta grabarlo.
 [x] README: "Cómo ejecutar" (JDK 21, mvnw y java -jar).
 [x] README: integrantes del equipo.
-[ ] Informe técnico (esqueleto con contenido): faltan los integrantes,
-    las secciones [PENDIENTE], las conclusiones y las herramientas.
+[x] Informe técnico completo en informe/informe_tecnico.md (incluye
+    la declaración del uso de IA y las conclusiones).
 [x] ASSETS.md: origen y licencia de cada asset. Imágenes propias y
     audio hecho por un integrante con su propia voz y VoiceStudio;
     todo se libera como dominio público (CC0).
