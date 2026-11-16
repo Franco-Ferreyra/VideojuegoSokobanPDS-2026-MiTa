@@ -1,0 +1,134 @@
+# CLAUDE.md — TeMU Express (TP PDS UADE 2026)
+
+Contexto para que cualquier chat nuevo retome el TP sin re-preguntar.
+Actualizado: 15/11/2026.
+
+## 1. Qué es
+
+- TP de Proceso de Desarrollo de Software (UADE). Equipo "Los DesubiAmericanos". Profesor: Jonathan Pepe (jpepe@uade.edu.ar).
+- Juego tipo Sokoban en **Java 21 + Swing**, temática "TeMU Express": un repartidor lleva paquetes (cajas) a destinos en 4 regiones (China, EEUU, Alemania, Sudamérica con 3 variantes).
+- Repo: github.com/Franco-Ferreyra/VideojuegoSokobanPDS-2026-MiTa (público).
+
+## 2. Cómo trabajar con el usuario (OBLIGATORIO)
+
+- Hablar en **español rioplatense**, respuestas **cortas y simples**.
+- **No subir nada sin autorización.** Antes de cualquier commit/push: mostrar lo que se hizo (archivo completo / resultado) y esperar el "sí".
+- **No hacer nada de más.** Solo lo pedido. Consultar antes de crear cosas nuevas.
+- **Se trabaja directo sobre `main`** (sin ramas ni PRs). Hacer `git pull` antes de empezar y antes de commitear, para no pisar lo de los compañeros; todo tiene que quedar alineado con lo que hicieron ellos.
+- Antes de subir, correr `.\mvnw.cmd clean verify` y que pase todo.
+- `Teoria/` nunca se sube a git (hoy está vacía localmente).
+- Descargar archivos requiere permiso explícito. Assets solo propios o CC0.
+- **StarUML:** una sola ventana. Nunca usar File > Open Recent (abre otra ventana; para recargar, cerrar primero). No usar `C:\Users\Jesus\Downloads\Strategy.mfj` ni guardar el archivo del compañero.
+- En cada diagrama, revisar clases sueltas y tipos sin relación antes de presentarlo.
+- Principios de diseño a respetar (Shvets, "Dive Into Design Patterns", en `C:\Users\Jesus\Desktop\BuenasPracticas`): SOLID, Encapsulate What Varies, Program to an Interface, Composition over Inheritance.
+
+## 3. Documentos y prioridad
+
+1. **`Decisiones_MVP_TeMU_ExpressFinal.txt`** — manda sobre todo. Tiene la sección PENDIENTES (Diseño / Assets / Niveles / Código / Entrega). Archivo con CRLF: preservarlo.
+2. **`diagramas/TeMUExpress.mdj`** (StarUML) — los nombres de clases y métodos salen de acá. PNGs exportados en `diagramas/`.
+3. `docs/MOTOR_BASICO.md`, `docs/FORMATO_NIVELES.md` — docs del back (compañero).
+4. `niveles/SOLUCIONES.md` — soluciones y reglas de mecánicas.
+5. Otros: `README.md` ("Cómo ejecutar" pendiente), `informe/informe_tecnico.md`, `video/guion_video.md`, `textos/mensajes_regionales.md`, `Patrones_*.txt`, `Resumen_TP*` (histórico), `Diseno_Niveles_v2*` (referencia), `bocetos/`.
+6. `HechoPorChatcito_BorrarAntesDeEntrega/` — borrar antes de entregar.
+
+Exportar diagramas desde CLI:
+```
+"C:\Program Files\StarUML\StarUML.exe" image diagramas/TeMUExpress.mdj -f png -s "@UMLClassDiagram" -o "diagramas/<%=element.name%>.png"
+```
+
+## 4. Build, tests y ejecución
+
+- Maven wrapper + Java 21. Usar **PowerShell** (Git Bash rompe el classpath con `;`).
+- `.\mvnw.cmd clean verify` → JUnit (29 tests), Spotless (Google Java Format AOSP), SpotBugs (max effort, threshold Low, sin exclusiones).
+- Formatear: `.\mvnw.cmd spotless:apply`.
+- Demo Swing (desde la raíz del repo): `java -cp target/classes temuexpress.demo.DemoSwing [archivo.txt]` (por defecto `src/test/resources/niveles/tutorial.txt`).
+- Consola: `java -jar target/temu-express-0.1.0-SNAPSHOT.jar <archivo.txt>`.
+- Ojo SpotBugs: en clases Swing serializables usar campos `transient` + `serialVersionUID`; `toUpperCase/LowerCase(Locale.ROOT)`.
+
+## 5. Arquitectura (MVC)
+
+Paquetes en `src/main/java/temuexpress/`:
+- `modelo.nucleo`, `modelo.creacion` (LectorNivel, ConstructorNivelSokoban — Builder), `modelo.estrategias`, `modelo.dto` — **back de los compañeros**. No tocar su código sin acordarlo.
+  - DTOs: `TableroDTO(int ancho, int alto, String terreno, String objetos)` (capas = filas unidas por `\n`, con símbolos del TXT); `EventoPartidaDTO(tipo, nivel, movimientos, empujes, usosUndoSeguidos)`; `ResumenNivelDTO(movimientos, empujes, usosUndo, par)`. Los dos últimos los agregamos nosotros.
+- `controlador` — `ControladorJuego` (del compañero, final, sin Swing): mover, deshacer, reiniciarNivel, esVictoria, getTableroDTO, contadores.
+- `vista` — **nuestro** (front):
+  - `VentanaJuego` (JFrame por composición). API: `mostrar`, `setOyente`, `setSprites`, `setPuntajeTotal`, `mostrarInicio`, `mostrarMensaje(titulo, String[])`, `mostrarJuego(TableroDTO)`, `actualizar(TableroDTO, EventoPartidaDTO)`, `mostrarResumen(ResumenNivelDTO, int)`, `mostrarDerrota(String[])`, `mostrarFinal(String[])`.
+  - Interfaz `Pantalla`: PantallaInicio (con logo), PantallaMensaje, PantallaJuego, PantallaResumen, PantallaDerrota, PantallaFinal. Más: PanelJuego, VistaTablero, VistaHUD, EstiloRegion, HojaSprites, Cartel, Texto, Disposicion, OyenteVista.
+  - Resolución base 432x324, escala x2. Tablero 13x7 en (112,188), tiles de 16 px. El `fondo.png` de cada región es el boceto normalizado con el HUD dibujado; VistaHUD escribe los valores encima. EstiloRegion toma colores del fondo.
+  - VistaTablero: en objetos `F` = caja_fragil_4; `1`–`4` = caja frágil con esa resistencia (codificación a acordar con el back).
+- `demo.DemoSwing` — **temporal**, conecta vista + motor. Puntaje provisorio `1000 - 3*movs - 5*emp - 100*undo`, +200 sin Undo, +150 si movs ≤ PAR, mínimo 0. Hace de "fábrica regional" (carpeta de assets y color de repartidor). Se borra cuando el controlador maneje vista, Decorator de puntaje y fábricas.
+
+### Claves de HojaSprites
+- Terreno: `pared, piso, destino, cerrojo, muro_cerrado, muro_abierto, agujero, hielo, cinta_arriba/abajo/izquierda/derecha, portal_1..9`
+- Objetos: `caja_normal, caja_llave, caja_fragil_1..4, jugador_arriba/abajo/izquierda/derecha, esqueleto`
+- Pantalla: `fondo, logo`
+- Si falta una imagen, HojaSprites dibuja un reemplazo provisorio.
+
+### Assets (`assets/img/`)
+- Una carpeta por región: `china, usa, alemania, arg_chile, ecuador_colombia, peru_venezuela`. Cada una: 11 tiles base + `fondo.png` + 16 sprites de mecánicas (cerrojo, agujero, hielo, cinta x4, portal_1..9; iguales en todas las regiones, como las cajas).
+- `logo.png`.
+- `personaje/repartidor_{azul,amarillo,rojo,verde}/` con `arriba, abajo, izquierda, derecha, esqueleto`. Azul=China, Amarillo=EEUU, Rojo=Alemania, Verde=Sudamérica.
+
+## 6. Niveles
+
+Formato (`docs/FORMATO_NIVELES.md`): cabeceras `REGION=`, `VARIANTE=`, `PAR=`, luego `[TERRENO]` y `[OBJETOS]`. Máximo 13x7, cada espacio cuenta. `.gitattributes`: `/niveles/*.txt -text`.
+- Terreno: `#` pared, `.` destino, `L` cerrojo, `W` muro, `O` agujero, `~` hielo, `> < ^ v` cintas, `1-9` portales (de a pares).
+- Objetos: `@` jugador, `$` caja normal, `F` caja frágil, `K` caja llave.
+
+`niveles/nivel_*.txt` (6 mapas, verificados con solver):
+
+| Nivel | Región / variante | Mecánicas | Movs | Empujes | PAR |
+|---|---|---|---|---|---|
+| 1-1 | CHINA | cerrojo/muro, llave | 28 | 8 | 34 |
+| 2-1 | EEUU | + caja frágil | 21 | 8 | 26 |
+| 3-1 | ALEMANIA | agujeros, frágil | 38 | 21 | 46 |
+| 4-1 | SUDAMERICA / ARG-CHILE | hielo, agujero, muros | 58 | 22 | 70 |
+| 4-2 | SUDAMERICA / ECU-COL | cinta, frágil, muro | 51 | 22 | 62 |
+| 4-3 | SUDAMERICA / PERU-VEN | portal, cinta, hielo, todo | 79 | 29 | 95 |
+
+PAR = solución × 1.2 redondeado arriba. 1-1 a 4-2 son óptimos en movimientos; 4-3 es solo una solución verificada. **Hoy el LectorNivel del back los rechaza** ("Mecanica pendiente de implementar").
+
+### Reglas de mecánicas (las usadas para verificar los mapas, ver final de SOLUCIONES.md)
+- **Hielo:** la caja sigue en la dirección del empuje y aplica el efecto de la celda siguiente. El jugador puede caminar sobre hielo.
+- **Cinta:** la caja sigue la dirección de la cinta; si está bloqueada queda sobre la cinta.
+- **Portal:** la caja sale por el portal par en la dirección de entrada; si la salida está bloqueada, el empuje se rechaza.
+- **Agujero:** caja normal o frágil cae, desaparece y el agujero pasa a piso. Si cae una caja llave, el nivel queda imposible (derrota).
+- **Frágil:** resistencia 4, -1 por empuje (un deslizamiento cuenta como un empuje); al 4º empuje se rompe.
+- **Muros:** abiertos sii todos los cerrojos tienen una caja llave encima. Para la caja empujada, el estado se calcula sin contarla.
+- El jugador no pisa agujeros abiertos, cintas ni portales.
+
+## 7. Estado del repo (15/11/2026)
+
+- `main` = b621eff, con todo lo hecho hasta ahora (front, textos, mapas, imágenes).
+- Las ramas viejas (`front`, `textos`, `mapas`, `imagenes`, `codex/motor-basico`) ya están mergeadas y no se usan más.
+
+## 8. Qué falta para terminar el MVP
+
+**Código — mecánicas (lo más grande):**
+- Clases de terreno: Agujero, Cerrojo, Cinta, Hielo, Muro, Portal.
+- Estrategias: EstrategiaCinta, EstrategiaPortal, EstrategiaResbaladiza, y el encadenamiento de efectos.
+- Cajas: CajaFragil, CajaLlave + CreadorCajaFragil, CreadorCajaLlave (Factory Method) y TipoCaja.
+- `Partida.mover`: recalcular muros, caída en agujeros, derrota por caja llave.
+- Memento: guardar resistencia de frágiles y agujeros tapados.
+- LectorNivel/Builder: aceptar los símbolos nuevos y validar cantidades (portales de a pares, etc.).
+- Tests, incluido reproducir las secuencias de SOLUCIONES.md.
+
+**Código — patrones del diagrama todavía sin implementar:**
+- Observer: ObservadorPartida, PublicadorPartida, PresentadorPartida, ReaccionAudioPartida.
+- Decorator de puntaje: CalculadorPuntaje, PuntajeBase, DecoradorPuntaje, BonusSinUndo, BonusPorPar, RecargoUndo.
+- Abstract Factory: FabricaNivel + FabricaChina, FabricaEEUU, FabricaAlemania, FabricaSudamerica; productos AspectoRepartidor*, Escenario*, SonidoRegional* (4 variantes c/u).
+- GestorSonido, PreparadorNivelFacade (Facade).
+- Integración: el controlador maneja la vista y el flujo de niveles → borrar `demo/DemoSwing`.
+
+**Decisiones a acordar con los compañeros:**
+- Cómo viaja la resistencia de la caja frágil en el TableroDTO (la vista ya entiende `1`–`4` y `F`).
+- Si "Reiniciar" pone los contadores en cero (interpretación actual de MOTOR_BASICO.md).
+
+**Entrega:** README "Cómo ejecutar", informe técnico, guion/video, diagramas actualizados, borrar `HechoPorChatcito_BorrarAntesDeEntrega/`, revisar PENDIENTES de Decisiones.
+
+## 9. Herramientas auxiliares (fuera del repo, pueden no existir en otra sesión)
+
+En el scratchpad de la sesión anterior (`C:\Users\Jesus\AppData\Local\Temp\claude\8f8a3f56c77754f4\1a2a9556-9af0-4f5b-9688-b49730b4b56a\scratchpad\`):
+- `mapas/solver.py` — validador + BFS por empujes (`resolver`, `resolver_movs`, `mecanicas`) con las reglas de la sección 6.
+- `mapas/generar.py` — genera los TXT desde una grilla combinada.
+- `mecanicas.py` — generador (Pillow) de los sprites de mecánicas.
