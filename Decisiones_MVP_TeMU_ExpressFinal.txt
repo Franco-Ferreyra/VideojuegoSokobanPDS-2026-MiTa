@@ -263,12 +263,12 @@ W = muro, que empieza cerrado; se abre según la regla de cerrojos.
   cada integrante.
 
 
-PENDIENTES (estado al 12/11/2026)
+PENDIENTES (estado al 16/11/2026)
 ---------------------------------------------------------------------
 Diseño y documentos:
-[x] Diagramas de clases en StarUML (los 10, con sus PNG en
-    diagramas/png). Incluye el 7 (Memento), el 4 (Abstract Factory),
-    el 5 (Singleton + Facade) y CajaFragil con resistencia = 4.
+[x] Diagramas de clases en StarUML (los 11, del 0 al 10, con sus PNG
+    en diagramas/png), alineados con el código. El 10 (Fondo animado)
+    muestra FondoAnimado, Capa y sus 8 capas.
 [x] Patrones_Comportamiento_TeMU_Express.txt: Undo solo con Memento.
 [x] Bocetos (punto 6): los cambios se aplicaron en los sprites y en la
     vista (muro cerrado y abierto, frágil con 4 estados, caja llave
@@ -276,13 +276,16 @@ Diseño y documentos:
     JPG de bocetos/ quedan como referencia del estilo.
 [x] Mensajes regionales: textos/mensajes_regionales.md.
 [x] Guion del video: video/guion_video.md. Falta grabarlo.
-[ ] README: falta "Cómo ejecutar" (los comandos actuales están en
-    docs/MOTOR_BASICO.md) y los nombres de los integrantes.
+[x] README: "Cómo ejecutar" (JDK 21, mvnw y java -jar).
+[ ] README: faltan los nombres de los integrantes.
 [ ] Informe técnico (esqueleto con contenido): faltan los integrantes,
     las secciones [PENDIENTE], las conclusiones y las herramientas.
 [ ] ASSETS.md: registrar el origen y la licencia de cada asset
     (imágenes, música, efectos y voces) para justificar el dominio
     público. Revisar la licencia de las voces (VoiceStudio, con IA).
+[ ] Actualizar textos/mensajes_regionales.md con los textos nuevos
+    (historia de Donny, LOS REPARTIDORES y frases de caída) y
+    docs/MOTOR_BASICO.md con las mecánicas.
 
 Assets:
 [x] Personajes: un repartidor por familia en assets/img/personaje
@@ -297,34 +300,33 @@ Assets:
     (sacados de los bocetos, con el HUD dibujado) y logo en assets/img.
 [x] Audio: música de las 4 familias, 17 efectos y voces de las 6
     regiones en assets/audio.
+[x] Fondos animados (extra): cielo y elementos que se mueven en cada
+    región, con sprites en assets/img/<región>/anim.
 
 Niveles:
 [x] Los 6 mapas TXT con su solución comprobada y el PAR:
-    niveles/nivel_1-1.txt a nivel_4-3.txt y niveles/SOLUCIONES.md
-    (PR #3, rama mapas). Volver a comprobarlos cuando el motor tenga
-    las mecánicas, por si alguna regla quedó distinta (ver el final
-    de SOLUCIONES.md).
+    niveles/nivel_1-1.txt a nivel_4-3.txt y niveles/SOLUCIONES.md.
+    El motor los carga y los juega con todas las mecánicas.
 
 Código (proyecto Maven, src/main/java/temuexpress):
 [x] Motor básico: LectorNivel + ConstructorNivelSokoban (Builder),
-    CreadorCajaNormal (Factory Method), EstrategiaNormal (Strategy),
-    movimiento, empuje, victoria, Undo con Memento y reinicio, con 29
-    pruebas (docs/MOTOR_BASICO.md).
-[x] Vista Swing (temuexpress.vista): inicio, mensaje, juego, resumen,
-    derrota y final, con el fondo de cada región. DTO en modelo.dto.
-[ ] Mecánicas: caja llave, cerrojo y muros, caja frágil, agujeros,
+    CreadorCaja (Factory Method), estrategias de desplazamiento
+    (Strategy), movimiento, empuje, victoria, Undo con Memento y
+    reinicio. 37 pruebas (JUnit) más Spotless y SpotBugs.
+[x] Vista Swing (temuexpress.vista): inicio animado, mensaje, juego,
+    resumen, derrota y final, con el fondo animado de cada región.
+[x] Mecánicas: caja llave, cerrojo y muros, caja frágil, agujeros,
     hielo, cinta y portales (con sus estrategias y creadores de caja).
-[ ] Patrones que faltan: Observer (ObservadorPartida), Decorator
-    (puntaje y bonificaciones), Facade (PreparadorNivelFacade),
-    Singleton (GestorSonido) y Abstract Factory (FabricaNivel y las 4
-    fábricas).
-[ ] Conectar ControladorJuego con VentanaJuego: los 6 niveles en
-    orden, mensajes regionales, resumen y 1UP. Después borrar la demo
-    temporal (temuexpress.demo.DemoSwing).
-[ ] Acordar cómo llega la caja frágil en TableroDTO: "F" o la
-    resistencia que le queda (4 a 1). La vista acepta los dos.
-[ ] Confirmar el reinicio: hoy pone en 0 movimientos, empujes y usos
-    de Undo (interpretación del back, ver docs/MOTOR_BASICO.md).
+[x] Patrones: Observer (ObservadorPartida), Decorator (puntaje y
+    bonificaciones), Facade (PreparadorNivelFacade), Singleton
+    (GestorSonido) y Abstract Factory (FabricaNivel y las 4 fábricas).
+[x] ControladorJuego conectado con VentanaJuego: los 6 niveles en
+    orden, mensajes regionales, resumen, 1UP y cierre. La demo
+    temporal ya se borró.
+[x] Caja frágil en TableroDTO: viaja con la resistencia que le queda
+    (4 a 1).
+[x] Reinicio: vuelve el nivel al inicio y pone en 0 movimientos,
+    empujes y usos de Undo.
 
 Entrega:
 [ ] Grabar el video de gameplay.

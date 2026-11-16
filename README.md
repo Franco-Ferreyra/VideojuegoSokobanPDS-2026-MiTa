@@ -16,11 +16,26 @@ Sokoban en **Java + Swing (2D)** con estética arcade pixel art. Sos un repartid
 
 ### Controles
 - **Flechas:** mover al repartidor. Solo empuja cajas, de a una por vez.
-- **UNDO:** vuelve 5 movimientos atrás. Se pueden deshacer hasta 15 movimientos, con un máximo de 3 usos seguidos.
-- **REINICIAR:** vuelve el nivel a su estado inicial.
+- **ENTER (o clic):** pasar los mensajes y las pantallas de resumen.
+- **UNDO (clic en el botón):** vuelve 5 movimientos atrás. Se pueden deshacer hasta 15 movimientos, con un máximo de 3 usos seguidos.
+- **REINICIAR (clic en el botón):** vuelve el nivel a su estado inicial y pone los contadores en cero.
 
 ### Cómo ejecutar
-**[PENDIENTE]** Se completa cuando el back confirme cómo se compila y se ejecuta: versión de Java, comando o archivo .jar y clase principal.
+Requisito: **JDK 21**. No hace falta instalar Maven: el repo trae el wrapper (`mvnw`).
+
+1. Compilar y generar el .jar (corre también las pruebas, Spotless y SpotBugs):
+   - Windows (PowerShell): `.\mvnw.cmd clean package`
+   - Linux / macOS: `./mvnw clean package`
+2. Jugar, **desde la raíz del repo** (el juego lee `assets/` y `niveles/` desde ahí):
+   ```
+   java -jar target/temu-express-0.1.0-SNAPSHOT.jar
+   ```
+
+Clase principal: `temuexpress.Aplicacion`. Con un archivo de nivel como argumento abre una versión de consola para probar el motor:
+```
+java -jar target/temu-express-0.1.0-SNAPSHOT.jar niveles/nivel_1-1.txt
+```
+Para correr solo las verificaciones: `.\mvnw.cmd clean verify` (JUnit, Spotless con Google Java Format AOSP y SpotBugs).
 
 ### Documentación
 - `Decisiones_MVP_TeMU_ExpressFinal.txt`: decisiones cerradas del equipo, que prevalecen sobre el resto.
@@ -29,6 +44,8 @@ Sokoban en **Java + Swing (2D)** con estética arcade pixel art. Sos un repartid
 - `informe/informe_tecnico.md`: informe técnico.
 - `textos/mensajes_regionales.md`: mensajes de cada nivel y personajes.
 - `video/guion_video.md`: guion del video de gameplay.
+- `docs/MOTOR_BASICO.md` y `docs/FORMATO_NIVELES.md`: motor y formato de los niveles.
+- `niveles/SOLUCIONES.md`: solución verificada de cada nivel y reglas de las mecánicas.
 
 ### Assets
 Las imágenes son propias del equipo, en pixel art (`assets/img/`). El audio está en `assets/audio/`. El origen y la licencia de cada asset se registran en `ASSETS.md` **[PENDIENTE]**.
