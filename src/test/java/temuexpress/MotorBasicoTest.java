@@ -16,8 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import temuexpress.controlador.ControladorJuego;
 import temuexpress.modelo.creacion.ConstructorNivelSokoban;
 import temuexpress.modelo.creacion.LectorNivel;
@@ -222,27 +220,6 @@ class MotorBasicoTest {
         partida.restaurar(m);
         assertEquals(inicial, partida.getTableroDTO());
         assertThrows(IllegalArgumentException.class, () -> new Partida(nivel).restaurar(m));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"L", "W", "O", "~", ">", "<", "^", "v", "1", "9"})
-    void mecanicasPendientesSeRechazanExplicitamente(String simbolo) {
-        var e =
-                assertThrows(
-                        IllegalArgumentException.class,
-                        () -> cargar(tutorial().replace("#     #", "#  " + simbolo + "  #")));
-        assertTrue(e.getMessage().contains("pendiente"));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"F", "K"})
-    void cajasPendientesSeRechazanExplicitamente(String simbolo) {
-        assertTrue(
-                assertThrows(
-                                IllegalArgumentException.class,
-                                () -> cargar(tutorial().replace("$", simbolo)))
-                        .getMessage()
-                        .contains("pendiente"));
     }
 
     @Test

@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Escribe texto en la resolución base con letra fina, como en los bocetos. */
 final class Texto {
@@ -35,6 +37,24 @@ final class Texto {
         FontMetrics fm = g.getFontMetrics();
         g.setColor(c);
         g.drawString(s, x - fm.stringWidth(s), y);
+    }
+
+    /** Parte el texto en renglones que entran en el ancho dado (corta entre palabras). */
+    static List<String> partir(Graphics2D g, String s, Font f, int ancho) {
+        FontMetrics fm = g.getFontMetrics(f);
+        List<String> renglones = new ArrayList<>();
+        String linea = "";
+        for (String palabra : s.split(" ")) {
+            String prueba = linea.isEmpty() ? palabra : linea + " " + palabra;
+            if (!linea.isEmpty() && fm.stringWidth(prueba) > ancho) {
+                renglones.add(linea);
+                linea = palabra;
+            } else {
+                linea = prueba;
+            }
+        }
+        if (!linea.isEmpty()) renglones.add(linea);
+        return renglones;
     }
 
     /** Completa con ceros a la izquierda: 12 con 3 dígitos da "012". */

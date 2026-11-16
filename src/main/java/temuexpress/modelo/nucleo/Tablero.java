@@ -15,8 +15,7 @@ public final class Tablero {
             for (int columna = 0; columna < celdas[fila].length; columna++) {
                 Posicion posicion = new Posicion(fila, columna);
                 Celda original = celdas[fila][columna];
-                // Los tres terrenos básicos son inmutables y se pueden compartir.
-                Celda copia = new Celda(original.getTerreno());
+                Celda copia = new Celda(original.getTerreno().copiar());
                 if (original.tieneCaja()) {
                     copia.setCaja(EstadoCaja.capturar(original.getCaja(), posicion).reconstruir());
                 }
@@ -69,10 +68,12 @@ public final class Tablero {
     }
 
     // El Builder configura el estado inicial por constructor; solo el núcleo mueve al jugador.
+    // Se pide que una caja pueda estar ahí (no pared ni muro cerrado): al empujar una caja que
+    // estaba sobre una cinta, el jugador queda sobre la cinta. Partida decide por dónde camina.
     void setPosicionJugador(Posicion posicion) {
         Objects.requireNonNull(posicion);
         if (!contiene(posicion)
-                || !getCelda(posicion).getTerreno().esTransitablePorJugador()
+                || !getCelda(posicion).getTerreno().esTransitablePorCaja()
                 || getCelda(posicion).tieneCaja()) {
             throw new IllegalArgumentException(
                     "El jugador requiere una casilla libre y transitable");

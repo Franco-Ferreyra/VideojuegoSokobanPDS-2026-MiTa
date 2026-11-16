@@ -3,8 +3,10 @@ package temuexpress.modelo.dto;
 /**
  * Evento que Partida envía a sus observadores (diagrama 8). Inmutable.
  *
- * <p>tipo: MOVIMIENTO, UNDO, REINICIO, VICTORIA o DERROTA. nivel: formato región-subnivel, por
- * ejemplo "1-1".
+ * <p>tipo: MOVIMIENTO (paso sin empujar), EMPUJE, RESBALAR, CINTA o PORTAL (empuje según el terreno
+ * al que entra la caja), CAIDA, FRAGIL_DANO, ROTURA, META, MURO_ABRE, MURO_CIERRA, VICTORIA,
+ * DERROTA, UNDO o REINICIO. Un movimiento puede generar varios eventos seguidos. nivel: formato
+ * región-subnivel, por ejemplo "1-1".
  */
 public record EventoPartidaDTO(
         String tipo, String nivel, int movimientos, int empujes, int usosUndoSeguidos) {

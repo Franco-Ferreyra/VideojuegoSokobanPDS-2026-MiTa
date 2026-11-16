@@ -5,19 +5,30 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Scanner;
+import javax.swing.SwingUtilities;
 import temuexpress.controlador.ControladorJuego;
 import temuexpress.modelo.creacion.ConstructorNivelSokoban;
 import temuexpress.modelo.creacion.LectorNivel;
+import temuexpress.modelo.creacion.PreparadorNivelFacade;
 import temuexpress.modelo.dto.TableroDTO;
 import temuexpress.modelo.nucleo.Direccion;
 import temuexpress.modelo.nucleo.Nivel;
 
-/** Banco de prueba por consola hasta integrar Swing. */
+/**
+ * Punto de entrada. Sin argumentos abre el juego en Swing (los 6 niveles). Con un archivo de nivel
+ * lo juega por consola (banco de prueba del motor). Ejecutar desde la raíz del repo, donde están
+ * assets/ y niveles/.
+ */
 public final class Aplicacion {
     public static void main(String[] args) throws IOException {
+        if (args.length == 0) {
+            SwingUtilities.invokeLater(
+                    () -> new ControladorJuego(new PreparadorNivelFacade()).iniciar());
+            return;
+        }
         if (args.length != 1) {
             System.out.println(
-                    "Uso: java -jar target/temu-express-0.1.0-SNAPSHOT.jar <archivo.txt>");
+                    "Uso: java -jar target/temu-express-0.1.0-SNAPSHOT.jar [archivo.txt]");
             return;
         }
         Path archivo = Path.of(args[0]);

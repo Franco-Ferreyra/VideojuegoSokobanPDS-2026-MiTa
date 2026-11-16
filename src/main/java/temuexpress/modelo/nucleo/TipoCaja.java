@@ -1,7 +1,9 @@
 package temuexpress.modelo.nucleo;
 
 public enum TipoCaja {
-    NORMAL('$');
+    NORMAL('$'),
+    FRAGIL('F'),
+    LLAVE('K');
 
     private final char simbolo;
 

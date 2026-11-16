@@ -5,13 +5,17 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import javax.swing.JPanel;
+import javax.swing.Timer;
+import temuexpress.recursos.AnimacionFondo;
 
 /**
  * Dibuja todo en una imagen del tamaño del boceto (432x324) y la escala a la ventana sin suavizar.
@@ -33,6 +37,21 @@ class PanelJuego extends JPanel {
     private transient EstiloRegion estilo = EstiloRegion.desde(null);
     private transient OyenteVista oyente;
 
+    /** Frase del repartidor (globo) y el reloj que la borra. */
+    private static final Rectangle GLOBO = new Rectangle(76, 146, 280, 34);
+
+    private static final int DURACION_GLOBO_MS = 2500;
+    private transient String dialogo;
+    private transient Timer relojDialogo;
+
+    /** Cielo animado de la región: se pinta un cuadro nuevo 15 veces por segundo. */
+    private transient AnimacionFondo animacion;
+
+    private transient BufferedImage fondoAnimado;
+    private transient int[] pixelesFondo;
+    private transient Timer relojFondo;
+    private transient int cuadro;
+
     PanelJuego() {
         setPreferredSize(
                 new Dimension(
@@ -42,6 +61,21 @@ class PanelJuego extends JPanel {
         setFocusable(true);
         addKeyListener(new Teclado());
         addMouseListener(new Mouse());
+    }
+
+    private void borrarDialogo() {
+        dialogo = null;
+        repaint();
+    }
+
+    void mostrarDialogo(String frase) {
+        dialogo = frase;
+        if (relojDialogo == null) {
+            relojDialogo = new Timer(DURACION_GLOBO_MS, e -> borrarDialogo());
+            relojDialogo.setRepeats(false);
+        }
+        relojDialogo.restart();
+        repaint();
     }
 
     void setOyente(OyenteVista oyente) {
@@ -88,10 +122,49 @@ class PanelJuego extends JPanel {
         tablero.dibujar(g, sprites);
         hud.dibujar(g, estilo);
         pantalla.dibujar(g, estilo, sprites);
+        if (dialogo != null && pantalla.permiteMover()) dibujarDialogo(g);
         g.dispose();
     }
 
+    private void dibujarDialogo(Graphics2D g) {
+        estilo.dibujarPanel(g, GLOBO);
+        int y = GLOBO.y + 14;
+        for (String renglon : Texto.partir(g, dialogo, Texto.CUERPO, GLOBO.width - 16)) {
+            Texto.centro(g, renglon, GLOBO.x + GLOBO.width / 2, y, Texto.CUERPO, estilo.valor());
+            y += 13;
+        }
+    }
+
+    void setAnimacion(AnimacionFondo animacion) {
+        this.animacion = animacion;
+        if (animacion == null) {
+            if (relojFondo != null) relojFondo.stop();
+            return;
+        }
+        if (fondoAnimado == null) {
+            fondoAnimado =
+                    new BufferedImage(
+                            AnimacionFondo.ANCHO, AnimacionFondo.ALTO, BufferedImage.TYPE_INT_RGB);
+            pixelesFondo = ((DataBufferInt) fondoAnimado.getRaster().getDataBuffer()).getData();
+        }
+        if (relojFondo == null) {
+            relojFondo =
+                    new Timer(
+                            1000 / AnimacionFondo.CUADROS_POR_SEGUNDO,
+                            e -> {
+                                cuadro++;
+                                repaint();
+                            });
+        }
+        relojFondo.start();
+    }
+
     private void dibujarFondo(Graphics2D g) {
+        if (animacion != null) {
+            animacion.pintar(pixelesFondo, cuadro);
+            g.drawImage(fondoAnimado, 0, 0, null);
+            return;
+        }
         Image fondo = sprites.get("fondo");
         if (fondo != null) {
             g.drawImage(fondo, 0, 0, Disposicion.ANCHO, Disposicion.ALTO, null);

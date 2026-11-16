@@ -2,7 +2,7 @@ package temuexpress.modelo.nucleo;
 
 import java.util.Objects;
 
-/** Estado inmutable de una caja; centraliza su captura y reconstrucciÃ³n. */
+/** Estado inmutable de una caja; centraliza su captura y reconstrucción. */
 record EstadoCaja(TipoCaja tipo, Posicion posicion, int resistencia) {
     EstadoCaja {
         Objects.requireNonNull(tipo);
@@ -10,14 +10,15 @@ record EstadoCaja(TipoCaja tipo, Posicion posicion, int resistencia) {
     }
 
     static EstadoCaja capturar(Caja caja, Posicion posicion) {
-        return switch (caja.getTipo()) {
-            case NORMAL -> new EstadoCaja(TipoCaja.NORMAL, posicion, 0);
-        };
+        int resistencia = caja instanceof CajaFragil fragil ? fragil.getResistencia() : 0;
+        return new EstadoCaja(caja.getTipo(), posicion, resistencia);
     }
 
     Caja reconstruir() {
         return switch (tipo) {
             case NORMAL -> new CajaNormal();
+            case FRAGIL -> new CajaFragil(resistencia);
+            case LLAVE -> new CajaLlave();
         };
     }
 }

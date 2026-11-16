@@ -23,4 +23,12 @@ public interface Terreno {
     default EstrategiaDesplazamientoCaja getEstrategia() {
         return new EstrategiaNormal();
     }
+
+    /**
+     * Copia para otro tablero. Los terrenos sin estado se comparten; los que tienen estado (muro,
+     * agujero) devuelven uno nuevo para que dos partidas no se pisen.
+     */
+    default Terreno copiar() {
+        return this;
+    }
 }

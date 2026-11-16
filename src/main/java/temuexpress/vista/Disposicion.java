@@ -22,9 +22,10 @@ final class Disposicion {
     /** Zonas del fondo donde el boceto trae números de ejemplo. */
     static final Rectangle PUNTAJE = new Rectangle(11, 19, 51, 15);
 
-    static final Rectangle NIVEL = new Rectangle(25, 205, 27, 16);
-    static final Rectangle MOVIMIENTOS = new Rectangle(25, 240, 29, 16);
-    static final Rectangle EMPUJES = new Rectangle(25, 274, 29, 16);
+    // Empiezan justo debajo del rótulo del boceto (en algunas regiones el rótulo baja 1 o 2 px).
+    static final Rectangle NIVEL = new Rectangle(25, 206, 27, 14);
+    static final Rectangle MOVIMIENTOS = new Rectangle(25, 241, 29, 14);
+    static final Rectangle EMPUJES = new Rectangle(25, 276, 29, 14);
 
     /** Indicador de Undo: 3 cuadraditos del boceto. */
     static final int[] UNDO_X = {334, 345, 357};

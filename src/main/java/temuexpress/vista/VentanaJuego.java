@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import temuexpress.modelo.dto.EventoPartidaDTO;
 import temuexpress.modelo.dto.ResumenNivelDTO;
 import temuexpress.modelo.dto.TableroDTO;
+import temuexpress.recursos.AnimacionFondo;
 
 /**
  * Ventana del juego. Es lo único de la vista que usa el controlador. Solo recibe DTO y textos; no
@@ -11,7 +12,7 @@ import temuexpress.modelo.dto.TableroDTO;
  * solo ve estos métodos. Llamar a estos métodos desde el hilo de Swing
  * (SwingUtilities.invokeLater).
  */
-public class VentanaJuego {
+public class VentanaJuego implements VistaPartida {
 
     private final JFrame marco = new JFrame("TeMU Express - 特穆快递");
     private final PanelJuego panel = new PanelJuego();
@@ -41,6 +42,11 @@ public class VentanaJuego {
         panel.repaint();
     }
 
+    /** Cielo animado de la región; con null queda el fondo quieto. */
+    public void setAnimacionFondo(AnimacionFondo animacion) {
+        panel.setAnimacion(animacion);
+    }
+
     /** 1UP: suma de los puntajes de los niveles terminados. */
     public void setPuntajeTotal(int puntajeTotal) {
         panel.hud().setPuntajeTotal(puntajeTotal);
@@ -53,7 +59,17 @@ public class VentanaJuego {
 
     /** Mensaje regional al iniciar el nivel. */
     public void mostrarMensaje(String titulo, String[] lineas) {
-        mostrarPantalla(new PantallaMensaje(titulo, lineas));
+        mostrarMensaje(titulo, lineas, "ENTER para empezar");
+    }
+
+    /** Una página del mensaje regional; el pie dice qué hace ENTER. */
+    public void mostrarMensaje(String titulo, String[] lineas, String pie) {
+        mostrarPantalla(new PantallaMensaje(titulo, lineas, pie));
+    }
+
+    /** Frase del repartidor que se ve unos segundos sobre el juego. */
+    public void mostrarDialogo(String frase) {
+        panel.mostrarDialogo(frase);
     }
 
     /** Pasa a la pantalla de juego con este tablero. */

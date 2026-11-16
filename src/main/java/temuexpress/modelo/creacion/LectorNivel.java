@@ -18,6 +18,11 @@ public final class LectorNivel {
     private static final String MARCA_TERRENO = "[TERRENO]";
     private static final String MARCA_OBJETOS = "[OBJETOS]";
     private static final Set<String> CLAVES_ENCABEZADO = Set.of("REGION", "VARIANTE", "PAR");
+    private final Map<Character, CreadorCaja> creadoresCaja =
+            Map.of(
+                    '$', new CreadorCajaNormal(),
+                    'F', new CreadorCajaFragil(),
+                    'K', new CreadorCajaLlave());
     private ConstructorNivel constructor;
 
     public LectorNivel(ConstructorNivel constructor) {
@@ -125,19 +130,19 @@ public final class LectorNivel {
             for (int columna = 0; columna < objetos.get(fila).length(); columna++) {
                 Posicion posicion = new Posicion(fila, columna);
                 char simbolo = objetos.get(fila).charAt(columna);
+                CreadorCaja creador = creadoresCaja.get(simbolo);
                 switch (simbolo) {
                     case ' ' -> {}
                     case '@' -> constructor.colocarJugador(posicion);
-                    case '$' -> constructor.agregarCaja(posicion, new CreadorCajaNormal());
-                    case 'F', 'K' ->
-                            throw new IllegalArgumentException(
-                                    "Tipo de caja pendiente de implementar: " + simbolo);
-                    default ->
+                    default -> {
+                        if (creador == null)
                             throw new IllegalArgumentException(
                                     "Simbolo de objeto desconocido en fila "
                                             + (fila + 1)
                                             + ", columna "
                                             + (columna + 1));
+                        constructor.agregarCaja(posicion, creador);
+                    }
                 }
             }
         }
