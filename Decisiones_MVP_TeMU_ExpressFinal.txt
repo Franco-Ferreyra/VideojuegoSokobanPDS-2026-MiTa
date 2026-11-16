@@ -277,14 +277,13 @@ Diseño y documentos:
 [x] Mensajes regionales: textos/mensajes_regionales.md.
 [x] Guion del video: video/guion_video.md. Falta grabarlo.
 [x] README: "Cómo ejecutar" (JDK 21, mvnw y java -jar).
-[ ] README: faltan los nombres de los integrantes.
+[x] README: integrantes del equipo.
 [ ] Informe técnico (esqueleto con contenido): faltan los integrantes,
     las secciones [PENDIENTE], las conclusiones y las herramientas.
-[ ] ASSETS.md: registrar el origen y la licencia de cada asset
-    (imágenes, música, efectos y voces) para justificar el dominio
-    público. Revisar la licencia de las voces (VoiceStudio, con IA).
-[ ] Actualizar textos/mensajes_regionales.md con los textos nuevos
-    (historia de Donny, LOS REPARTIDORES y frases de caída) y
+[x] ASSETS.md: origen y licencia de cada asset. Imágenes propias y
+    audio hecho por un integrante con su propia voz y VoiceStudio;
+    todo se libera como dominio público (CC0).
+[x] textos/mensajes_regionales.md con los textos del juego y
     docs/MOTOR_BASICO.md con las mecánicas.
 
 Assets:

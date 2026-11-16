@@ -28,7 +28,7 @@ Actualizado: 16/11/2026.
 2. **`diagramas/TeMUExpress.mdj`** (StarUML) — los nombres de clases y métodos salen de acá. 11 diagramas (0 a 10); PNGs exportados en `diagramas/png/`.
 3. `docs/MOTOR_BASICO.md`, `docs/FORMATO_NIVELES.md` — docs del back (compañero).
 4. `niveles/SOLUCIONES.md` — soluciones y reglas de mecánicas.
-5. Otros: `README.md` (falta la lista de integrantes), `informe/informe_tecnico.md`, `video/guion_video.md`, `textos/mensajes_regionales.md`, `Patrones_*.txt`, `Resumen_TP*` (histórico), `Diseno_Niveles_v2*` (referencia), `bocetos/`.
+5. Otros: `README.md`, `ASSETS.md` (origen y licencia de los assets), `informe/informe_tecnico.md`, `video/guion_video.md`, `textos/mensajes_regionales.md`, `Patrones_*.txt`, `Resumen_TP*` (histórico), `Diseno_Niveles_v2*` (referencia), `bocetos/`.
 6. `HechoPorChatcito_BorrarAntesDeEntrega/` — borrar antes de entregar.
 
 Exportar diagramas desde CLI:
@@ -106,10 +106,7 @@ PAR = solución × 1.2 redondeado arriba. 1-1 a 4-2 son óptimos en movimientos;
 
 ## 8. Qué falta para entregar
 
-- README: nombres de los integrantes.
 - Informe técnico: integrantes, secciones [PENDIENTE], patrones, extras (fondos animados, audio), herramientas, conclusiones y declaración del uso de IA.
-- `ASSETS.md`: origen y licencia de cada asset (revisar las voces de VoiceStudio).
-- `textos/mensajes_regionales.md` con los textos nuevos (Donny, LOS REPARTIDORES, frases de caída) y `docs/MOTOR_BASICO.md` con las mecánicas.
 - Grabar el video (guion en `video/guion_video.md`).
 - Borrar `HechoPorChatcito_BorrarAntesDeEntrega/` y mandar el mail a jpepe@uade.edu.ar.
 - Ver la sección PENDIENTES de `Decisiones_MVP_TeMU_ExpressFinal.txt`.

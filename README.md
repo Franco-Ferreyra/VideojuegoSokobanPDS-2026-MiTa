@@ -48,13 +48,14 @@ Para correr solo las verificaciones: `.\mvnw.cmd clean verify` (JUnit, Spotless 
 - `niveles/SOLUCIONES.md`: solución verificada de cada nivel y reglas de las mecánicas.
 
 ### Assets
-Las imágenes son propias del equipo, en pixel art (`assets/img/`). El audio está en `assets/audio/`. El origen y la licencia de cada asset se registran en `ASSETS.md` **[PENDIENTE]**.
+Todos los assets son del equipo y se liberan como dominio público (CC0). Las imágenes son pixel art propio (`assets/img/`). El audio (`assets/audio/`) lo hizo un integrante con su propia voz, procesada en VoiceStudio. El detalle de cada archivo está en `ASSETS.md`.
 
 ### Equipo: Los DesubiAmericanos
-- [Apellido, Nombre]
-- [Apellido, Nombre]
-- [Apellido, Nombre]
-- [Apellido, Nombre]
-- [Apellido, Nombre]
+- Ferreyra, Franco Elian - 1190726
+- Obregon, Santiago - 1211437
+- Diaz, Matias - 1209251
+- Gonzalez Jimenez, Alejandra - 1198460
+- Quijada, Jesús - 1195298
+- Rodrigo, Juan Manuel - 1223897
 
 Materia: Proceso de Desarrollo de Software (UADE) - Prof. Jonathan Leonel Pepe.

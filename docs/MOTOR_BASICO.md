@@ -1,4 +1,6 @@
-# Primer entregable del motor
+# Motor del juego
+
+Empezó como el primer entregable del motor (movimiento, empuje, Undo y reinicio con cajas normales). Hoy tiene todas las mecánicas, los patrones del diagrama y está conectado con la vista Swing.
 
 ## Compilar y probar
 
@@ -8,60 +10,61 @@ PowerShell, desde la raíz del repo:
 
 ```powershell
 .\mvnw.cmd clean verify
-java -jar target/temu-express-0.1.0-SNAPSHOT.jar src/test/resources/niveles/tutorial.txt
+java -jar target/temu-express-0.1.0-SNAPSHOT.jar
 ```
 
-En Linux/macOS: `sh ./mvnw clean verify` y el mismo comando `java -jar`.
+En Linux/macOS: `sh ./mvnw clean verify` y el mismo comando `java -jar`. El juego lee `assets/` y `niveles/` desde la raíz del repo.
 
-La clase principal es `temuexpress.Aplicacion`. Es una consola para probar el motor antes de integrar Swing. Ingresar una acción por línea: A arriba, B abajo, I izquierda, D derecha, U Undo, R reiniciar, S salir. El tutorial se resuelve con dos D. Tras ganar se puede usar U o R; el motor bloquea movimientos nuevos hasta restaurar/reiniciar.
+La clase principal es `temuexpress.Aplicacion`:
+- **Sin argumentos:** abre el juego completo en Swing, con los 6 niveles en orden.
+- **Con un archivo de nivel:** abre una consola para probar el motor, por ejemplo `java -jar target/temu-express-0.1.0-SNAPSHOT.jar niveles/nivel_1-1.txt`. Se ingresa una acción por línea: A arriba, B abajo, I izquierda, D derecha, U Undo, R reiniciar, S salir. `src/test/resources/niveles/tutorial.txt` se resuelve con dos D.
 
 ## Arquitectura y contratos
 
-Los nombres se tomaron de `diagramas/TeMUExpress.mdj` y las reglas de `Decisiones_MVP_TeMU_ExpressFinal.txt`. El archivo PUML en la carpeta de propuestas antiguas no es el contrato vigente.
+Los nombres se tomaron de `diagramas/TeMUExpress.mdj` y las reglas de `Decisiones_MVP_TeMU_ExpressFinal.txt`.
 
-- `modelo.nucleo`: `Nivel`, `Tablero`, `Celda`, `Posicion`, `Direccion`, terrenos básicos, `CajaNormal`, `Partida`, `MementoPartida`, `EstadoCaja` e `HistorialPartida`.
-- `modelo.creacion`: `LectorNivel` dirige `ConstructorNivel` / `ConstructorNivelSokoban` (Builder); `CreadorCaja` / `CreadorCajaNormal` implementan Factory Method.
-- `modelo.estrategias`: contrato `EstrategiaDesplazamientoCaja` y `EstrategiaNormal`. El terreno de entrada elige la estrategia; esta calcula el destino sin modificar el tablero.
-- `modelo.dto`: `TableroDTO` inmutable, con ancho, alto y cadenas de ambas capas separadas por `\n`.
-- `controlador`: `ControladorJuego` coordina acciones e historial. No depende de Swing.
+- `modelo.nucleo`: `Nivel`, `Tablero`, `Celda`, `Posicion`, `Direccion`, los terrenos (`Piso`, `Pared`, `Destino`, `Cerrojo`, `Muro`, `Agujero`, `Hielo`, `Cinta`, `Portal`), las cajas (`CajaNormal`, `CajaFragil`, `CajaLlave`), `Partida`, `MementoPartida`, `EstadoCaja` e `HistorialPartida`.
+- `modelo.creacion`: `LectorNivel` dirige `ConstructorNivel` / `ConstructorNivelSokoban` (Builder). `CreadorCajaNormal`, `CreadorCajaFragil` y `CreadorCajaLlave` implementan Factory Method. `PreparadorNivelFacade` (Facade) lee el nivel y elige la fábrica regional.
+- `modelo.estrategias`: `EstrategiaDesplazamientoCaja` con `EstrategiaNormal`, `EstrategiaResbaladiza`, `EstrategiaCinta` y `EstrategiaPortal` (Strategy). El terreno de entrada elige la estrategia; esta calcula el destino sin modificar el tablero. `Encadenamiento` aplica el efecto de la celda siguiente cuando una caja sigue de largo.
+- `modelo.observador`: `PublicadorPartida` y `ObservadorPartida` (Observer). `Partida` avisa cada acción con un `EventoPartidaDTO`.
+- `modelo.puntaje`: `PuntajeBase` y sus decoradores `BonusSinUndo`, `BonusPorPar` y `RecargoUndo` (Decorator).
+- `modelo.dto`: `TableroDTO` (ancho, alto y las dos capas como texto separado por `\n`), `EventoPartidaDTO` y `ResumenNivelDTO`, todos inmutables.
+- `controlador`: `ControladorJuego` recibe lo que hace el jugador en la vista (implementa `OyenteVista`) y maneja el flujo de los niveles. `PresentadorPartida` y `ReaccionAudioPartida` son los observadores que actualizan la vista y el sonido.
+- `recursos`: fábricas regionales (Abstract Factory), `GestorSonido` (Singleton) y el fondo animado.
 
-Ejemplo para conectar la futura vista:
-
-```java
-Nivel nivel = new LectorNivel(new ConstructorNivelSokoban())
-    .construir("niveles/nivel_1-1.txt", "1-1");
-ControladorJuego controlador = new ControladorJuego(nivel);
-controlador.mover(Direccion.DERECHA); // true solamente si se confirmó
-TableroDTO tablero = controlador.getTableroDTO();
-controlador.deshacer();
-controlador.reiniciarNivel();
-```
-
-Ese ejemplo requiere un nivel con las mecánicas implementadas; para ejecutar hoy usar el tutorial. La vista debe usar el controlador y DTO, sin modificar celdas o administrar Mementos. `Nivel` entrega copias independientes de su estado inicial, de modo que distintas partidas no comparten cajas ni posiciones. Las copias de Tablero son para aislar niveles; Undo y reinicio usan exclusivamente Memento.
+La vista usa el controlador y los DTO, sin tocar celdas ni administrar Mementos. `Nivel` entrega copias independientes de su estado inicial, así distintas partidas no comparten cajas ni posiciones. Las copias de `Tablero` sirven para aislar niveles; Undo y reinicio usan solo Memento.
 
 ## Reglas implementadas
 
-Movimiento ortogonal, sin tirar, empujando una caja por vez. Paredes, límites, otra caja y caja contra pared bloquean la acción sin cambiar estado, contadores o historial. Un movimiento válido cuenta una vez y suma un empuje si corresponde. Victoria cuando todas las cajas están entregadas en destinos; no hay victoria vacía.
+**Movimiento:** ortogonal, sin tirar, empujando una caja por vez. Paredes, límites, otra caja y caja contra pared bloquean la acción sin cambiar estado, contadores ni historial. Un movimiento válido cuenta una vez y suma un empuje si corresponde. El jugador no pisa agujeros abiertos, cintas, portales ni muros cerrados; sí camina sobre hielo.
 
-El controlador guarda el estado anterior solo tras confirmar un movimiento. Historial conserva hasta 15 Mementos. Cada Undo retira hasta 5 y restaura el más antiguo retirado; con menos de 5 deshace los disponibles. Máximo 3 usos seguidos; un movimiento válido reinicia la racha, uno bloqueado no. Historial vacío no consume uso. Movimientos y empujes no disminuyen al deshacer; los usos acumulados de Undo aumentan por uso efectivo.
+**Victoria:** todas las cajas en su lugar. Las normales y las frágiles van a un destino; las llaves, a un cerrojo. No hay victoria vacía.
 
-Memento es inmutable y opaco al historial, sin getters públicos ni contadores. Solo Partida interpreta su contenido. Un token privado impide restaurar snapshots de otra partida. En este alcance todas las cajas son normales y la lista de agujeros tapados es vacía; resistencia y agujeros se incorporarán al implementar esas mecánicas.
+**Derrota:** se rompe una caja frágil o una caja llave cae en un agujero (el nivel queda imposible). Después de ganar o perder, el motor no acepta movimientos nuevos hasta usar Undo o reiniciar.
 
-Reiniciar restaura el Memento inicial y limpia historial. Se interpreta el reinicio como un intento nuevo: movimientos, empujes y ambos contadores de Undo vuelven a cero. Las decisiones no explicitan los contadores del reinicio; esta interpretación queda documentada aquí para revisión del equipo. Cambiar de nivel crea una Partida nueva y limpia el historial.
+**Mecánicas:**
+- **Caja llave, cerrojo y muros:** los muros se abren cuando todos los cerrojos tienen una caja llave encima, y se cierran si alguna sale. Para la caja que se está empujando, el estado se calcula sin contarla. Un muro con el jugador o una caja encima queda abierto hasta que se libera.
+- **Caja frágil:** empieza con resistencia 4 y pierde 1 por empuje (un deslizamiento cuenta como un empuje). Aguanta 3 empujes; el cuarto la rompe.
+- **Agujero:** una caja normal o frágil cae, desaparece y el agujero pasa a ser piso. Si cae una caja llave, es derrota.
+- **Hielo:** la caja sigue en la dirección del empuje y aplica el efecto de la celda siguiente.
+- **Cinta:** la caja sigue la dirección de la cinta; si está bloqueada, queda sobre la cinta.
+- **Portal:** la caja sale por el portal de su par, en la misma dirección en que entró. Si la salida está bloqueada, el empuje se rechaza.
 
-## Alcance restante
+**Validación de niveles:** `LectorNivel` y `ConstructorNivelSokoban` rechazan, con un mensaje claro, archivos con encabezados o capas inválidos, mapas sin paredes alrededor, más de 13x7, sin un único jugador, con distinta cantidad de cajas llave que de cerrojos, muros sin cerrojo, portales sin pareja y cintas, hielo o portales que formen un ciclo.
 
-Pendientes: llaves/cerrojos/muros, frágiles, hielo, agujeros, cintas, portales, Observer, puntaje/Decorator, resumen/1UP, fábricas regionales, Facade, audio/Singleton y Swing. No se agregan clases vacías para simular esos patrones. No hay persistencia ni servidor en este entregable.
+**Undo (Memento):** el controlador guarda el estado anterior solo después de confirmar un movimiento. El historial conserva hasta 15 Mementos. Cada Undo retira hasta 5 y restaura el más antiguo retirado; con menos de 5, deshace los que haya. Máximo 3 usos seguidos; un movimiento válido reinicia la racha y uno bloqueado no. Con el historial vacío no se gasta un uso. Movimientos y empujes no bajan al deshacer; los usos de Undo suben por cada uso efectivo.
 
-El [contrato TXT](FORMATO_NIVELES.md) es el documento para pasar al compañero de mapas. Se respetan sus archivos y los del responsable de textos, incluido README.
+El Memento es inmutable y opaco para el historial: solo `Partida` interpreta su contenido. Guarda la posición del jugador, cada caja con su tipo y resistencia (`EstadoCaja`) y los agujeros tapados. Un token privado impide restaurar snapshots de otra partida.
+
+**Reinicio:** restaura el Memento inicial, limpia el historial y pone en cero movimientos, empujes y ambos contadores de Undo (es un intento nuevo). Cambiar de nivel crea una `Partida` nueva y limpia el historial.
+
+**Puntaje:** `PuntajeBase` = 1000 - 3 x movimientos - 5 x empujes - 100 x usos de Undo. `BonusSinUndo` suma 200 si no se usó Undo y `BonusPorPar` suma 150 si los movimientos no superan el PAR. En el 4-1, `RecargoUndo` descuenta 100 más por cada uso (el Undo cuesta el doble). El puntaje de un nivel nunca baja de 0.
+
+**Eventos (Observer):** `MOVIMIENTO`, `EMPUJE`, `RESBALAR`, `CINTA`, `PORTAL`, `CAIDA`, `FRAGIL_DANO`, `ROTURA`, `META`, `MURO_ABRE`, `MURO_CIERRA`, `UNDO`, `REINICIO`, `VICTORIA` y `DERROTA`.
 
 ## Verificación
 
-JUnit prueba la solución del tutorial, bloqueos sin efectos parciales, caminar/empujar, victoria, Undo parcial y de cinco, límite de quince, racha de tres usos, contadores, reinicio, cambio de nivel, aislamiento de partidas y snapshots, encabezados/capas inválidos, dimensiones máximas, BOM/CRLF y rechazo explícito de mecánicas pendientes. La consola permite comprobar el mismo recorrido mediante el JAR.
-
-## Revisión de calidad antes de integrar
-
-`clean verify` ejecuta las pruebas, verifica el formato con Spotless (Google Java Format, estilo AOSP) y analiza el código de producción con SpotBugs, esfuerzo máximo y umbral Low. Un fallo en cualquiera de los tres controles hace fallar el build. No se agregaron exclusiones de hallazgos de SpotBugs.
+`clean verify` corre las pruebas, verifica el formato con Spotless (Google Java Format, estilo AOSP) y analiza el código con SpotBugs, esfuerzo máximo y umbral Low. Un fallo en cualquiera de los tres hace fallar el build. No hay exclusiones de hallazgos de SpotBugs.
 
 Para aplicar el formato después de editar Java:
 
@@ -70,12 +73,13 @@ Para aplicar el formato después de editar Java:
 .\mvnw.cmd clean verify
 ```
 
-La revisión manual separó lectura de encabezados, validación de capas y construcción de objetos; centralizó captura/reconstrucción de cajas en `EstadoCaja`; reemplazó límites repetidos por constantes y consultas al modelo; restringió al paquete del núcleo el movimiento directo del jugador y el retiro de cajas. `Celda.setCaja` sigue público porque lo usa Factory Method, pero valida que no se sobrescriba una caja ni se coloque sobre terreno bloqueado. No se expone el tablero interno de una Partida a la vista.
+Las **37 pruebas** (JUnit) cubren:
+- `MotorBasicoTest`: tutorial, bloqueos sin efectos parciales, caminar y empujar, victoria, Undo parcial y de cinco, límite de quince, racha de tres usos, contadores, reinicio, cambio de nivel, aislamiento de partidas y snapshots, archivos inválidos y tamaño máximo.
+- `MecanicasTest`: las soluciones de `niveles/SOLUCIONES.md` ganan cada uno de los 6 niveles; muros y caja llave; caja frágil (se rompe al cuarto empuje y Undo la recupera); caja llave en un agujero; portales; validación de llaves, cerrojos, portales sin pareja y ciclos de cintas.
+- `IntegridadModeloTest`: reglas internas de `Celda`, `Tablero` y el Builder.
+- `PatronesTest`: puntaje con decoradores y eventos del Observer.
+- `FondoAnimadoTest`: el cielo de cada región se mueve y el tablero y el HUD no.
 
-SpotBugs detectó y se corrigieron el uso de codificación implícita al leer consola y un posible nombre de archivo nulo. La construcción de tablero ahora verifica estructura rectangular, celdas completas y posición inicial válida. Se agregaron regresiones para aislamiento de celdas/cajas, mutaciones inválidas, uso del Builder fuera de orden, marcadores duplicados y victoria con dos cajas.
+Estos controles complementan la revisión manual; no prueban ausencia absoluta de bugs ni de problemas de diseño.
 
-Para continuar con otros tipos de caja, extender las ramas exhaustivas de `EstadoCaja.capturar` y `reconstruir`, además del creador y símbolo del tipo. Los terrenos actuales son inmutables y se comparten al copiar un nivel; al agregar muros o agujeros mutables, hay que copiar su estado para conservar el aislamiento. No se incorporan esas mecánicas en esta revisión.
-
-Estos controles complementan la revisión manual; no prueban ausencia absoluta de bugs o problemas de diseño.
-
-Resultado de esta revisión: **29 pruebas aprobadas**, Spotless aprobado y **0 hallazgos de SpotBugs** en el código de producción. También se verificó el JAR con el recorrido ganar → Undo → reiniciar.
+El [contrato TXT](FORMATO_NIVELES.md) describe el formato de los niveles.
