@@ -2,8 +2,8 @@
 
 La consigna pide un "video gameplay que muestre todas las funcionalidades implementadas". El orden sigue los niveles de Decisiones (punto 5), así cada mecánica aparece en el nivel donde se estrena.
 
-**Duración estimada:** 6 a 8 minutos.
-**Grabación:** pantalla completa de la ventana del juego, con el sonido del juego activado.
+**Video:** `TeMU_Express_gameplay.mp4` (en esta carpeta), 3:59.
+**Grabación:** el gameplay se grabó de corrido y sin cortes con Xbox Game Bar, con el sonido del juego. Las jugadas son las soluciones verificadas de `niveles/SOLUCIONES.md`. La presentación y el cierre son animaciones con los mismos fondos, sprites y música del juego, unidas al gameplay con ffmpeg.
 
 ## Lista de control (todo tiene que aparecer al menos una vez)
 
@@ -14,7 +14,7 @@ La consigna pide un "video gameplay que muestre todas las funcionalidades implem
 - [ ] Hielo, agujero, cinta, portales
 
 **Reglas**
-- [ ] Jugador bloqueado por una pared, una caja doble o un muro cerrado
+- [ ] Jugador bloqueado por una pared, dos cajas seguidas o un muro cerrado
 - [ ] Victoria
 - [ ] Derrota por caja frágil rota
 
@@ -23,94 +23,71 @@ La consigna pide un "video gameplay que muestre todas las funcionalidades implem
 - [ ] Botones UNDO y REINICIAR
 - [ ] Indicador de usos de Undo y el "x2" en 4-1
 - [ ] Pantalla de resumen
-- [ ] 1UP y pantalla final
+- [ ] 1UP, cierre de los repartidores y pantalla final
 
 **Extras**
-- [ ] Mensajes regionales
-- [ ] Música y voces de cada región
-- [ ] Efectos de sonido
+- [ ] Portada animada y fondo animado de cada región
+- [ ] Historia del repartidor y misión de cada nivel
+- [ ] Frases del repartidor al entregar, al caer una caja y al perder
+- [ ] Música, voces y efectos de sonido de cada región
 
 ---
 
-## 0. Presentación (15 s)
-1. Pantalla de inicio con el logo de TeMU Express.
-2. Nombre del equipo y de los integrantes.
-3. Decir en una frase la idea del juego: un repartidor que lleva paquetes por las aduanas del mundo.
+## Presentación (24 s)
+1. China: "Proceso de Desarrollo de Software", UADE 2026 y el profesor Jonathan Leonel Pepe.
+2. EEUU: "Los DesubiAmericanos presentan", con los cuatro repartidores.
+3. Alemania: el equipo. Cada repartidor empuja una caja y aparece un integrante con su legajo.
+4. Perú - Venezuela: cae el logo de TeMU Express con su brillo.
 
-## 1. Nivel 1-1 China (1 min 30 s)
-1. Mostrar el mensaje de inicio de China y la música regional.
-2. Señalar el HUD:
-   - 1UP en 000000
-   - NIVEL 1-1 y región CHINA
-   - MOVIMIENTOS y EMPUJES en 0
-   - indicador de Undo
-3. Moverse con las flechas. Mostrar que el contador de movimientos sube y que suena el paso.
-4. Intentar atravesar una pared: el jugador no se mueve.
-5. Intentar empujar dos cajas en fila: no se puede.
-6. Empujar una caja normal hasta un destino. Sube el contador de empujes y suenan el empuje y el destino cumplido.
-7. Intentar pasar por un muro cerrado: no se puede.
-8. Llevar la caja llave al cerrojo: se abren los muros y suena el desbloqueo.
-9. Sacar la caja llave del cerrojo: los muros se vuelven a cerrar.
-10. Volver a ponerla y cruzar el muro abierto.
-11. Completar el nivel:
-    - Mostrar la voz de victoria.
-    - Mostrar la **pantalla de resumen** con movimientos, empujes, usos de Undo y puntaje.
-    - Mostrar que el **1UP** se actualiza.
+## 0. Portada (3 s)
+- Logo flotando con su brillo, el equipo y "ENTER para empezar" titilando.
 
-## 2. Nivel 2-1 EEUU (1 min 30 s)
-1. Mostrar el mensaje de inicio y el cambio de música y de escenario (neón).
-2. Empujar la caja frágil y mostrar cómo cambian las grietas: resistencia 4 → 3 → 2 → 1.
-3. Empujarla una vez más para que se rompa. Muestra la **derrota**: suena la rotura, aparece el mensaje de derrota y se ofrecen UNDO y REINICIAR.
-4. Apretar **UNDO**:
-   - La caja vuelve sana, 5 movimientos atrás.
-   - Movimientos y empujes no bajan.
-   - El indicador muestra un uso menos.
-5. Apretar UNDO 2 veces más para mostrar el **máximo de 3 usos seguidos**. La cuarta vez no hace nada.
-6. Hacer un movimiento nuevo para mostrar que el indicador de usos se recarga.
-7. Apretar **REINICIAR**: el nivel vuelve al estado inicial.
-8. Resolver el nivel, usando la llave, el cerrojo y los muros, hasta la pantalla de resumen. Si se usó Undo, mostrar que no se cobra el bonus sin Undo.
+## 1. Nivel 1-1 China
+1. Mensaje de inicio en dos páginas: la historia de Xi Dada y la misión. Suenan la voz y la música de China.
+2. Tablero con el cielo animado. HUD: 1UP en 000000, NIVEL 1-1, movimientos y empujes en 0, indicador de Undo.
+3. Intentar bajar contra la pared: el jugador no se mueve.
+4. Caminar hasta el muro e intentar cruzarlo: está cerrado.
+5. **REINICIAR**: el nivel vuelve al inicio y los contadores a 0.
+6. Llevar la caja llave al cerrojo: se abren los muros y suena el desbloqueo.
+7. Resolver el nivel: entregas con las frases de Xi Dada, voz de victoria, **resumen** y **1UP** actualizado.
 
-## 3. Nivel 3-1 Alemania (1 min)
-1. Mostrar el mensaje de inicio y el escenario de arenisca con nieve.
-2. Intentar pisar un agujero: el jugador no puede.
-3. Empujar una caja al agujero:
-   - La caja cae y suena la caída.
-   - El agujero queda tapado y pasa a ser piso.
-4. Cruzar por el agujero tapado.
-5. Mostrar que había una caja de más por cada agujero.
-6. Terminar el nivel y mostrar el resumen. Si el movimiento quedó dentro del par, señalar el bonus por par.
+## 2. Nivel 2-1 EEUU
+1. Mensaje de inicio (historia de Donny) y cambio de música y escenario (reflectores y luces de Las Vegas).
+2. Abrir el muro con la llave y empujar la caja frágil: las grietas pasan de 4 a 1.
+3. Un empuje más la rompe: **derrota**, con el esqueleto y la frase de Donny.
+4. **UNDO**: vuelve 5 movimientos, la caja está sana, los movimientos y empujes no bajan y el indicador muestra un uso menos.
+5. UNDO dos veces más (máximo de 3 seguidos) y una cuarta vez, que no hace nada.
+6. Un movimiento nuevo recarga el indicador.
+7. REINICIAR y resolver el nivel hasta el resumen.
 
-## 4. Nivel 4-1 Argentina - Chile (1 min)
-1. Mostrar el mensaje de inicio y el indicador de Undo con **x2**.
-2. Empujar una caja sobre el **hielo**: patina hasta chocar o salir del hielo y suena el resbalón.
-3. Mostrar que el jugador camina por el hielo sin resbalar.
-4. Usar UNDO una vez y, al final, mostrar en el resumen el **recargo de Undo** (−100 extra).
-5. Usar llave, cerrojo, muros y el agujero. Terminar el nivel.
+## 3. Nivel 3-1 Alemania
+1. Mensaje de inicio (historia del pintor) y atardecer con zepelín.
+2. Intentar empujar dos cajas seguidas: no se puede.
+3. Empujar cajas a los agujeros: caen, suena la caída, el pintor comenta y el agujero queda tapado.
+4. Llevar la caja frágil a su destino y terminar el nivel. Resumen con el bonus por PAR.
 
-## 5. Nivel 4-2 Ecuador - Colombia (1 min)
-1. Mostrar el mensaje de inicio.
-2. Empujar una caja sobre una **cinta**: la caja sigue la flecha de la cinta, no la del empuje. Suena la cinta.
-3. Intentar pisar la cinta con el jugador: no se puede.
-4. Mostrar de nuevo la caja frágil y el muro junto al cerrojo. Terminar el nivel.
+## 4. Nivel 4-1 Argentina - Chile
+1. Mensaje de inicio (historia de Simoncito), nieve cayendo e indicador de Undo con **x2**.
+2. Empujar cajas sobre el **hielo**: patinan hasta chocar. El jugador camina sobre el hielo sin resbalar.
+3. Usar UNDO una vez y repetir las jugadas. En el resumen se ve el **recargo de Undo**.
+4. Llave, cerrojo, dos muros y un agujero. Terminar el nivel.
 
-## 6. Nivel 4-3 Perú - Venezuela (1 min 30 s)
-1. Mostrar el mensaje de inicio del nivel final.
-2. Empujar una caja dentro de un **portal**:
-   - La caja sale por el portal del mismo color, en la dirección del empuje.
-   - Suena el portal.
-3. Mostrar que, si la salida del portal está bloqueada, el empuje no se realiza.
-4. Mostrar que el jugador no puede usar los portales.
-5. Resolver el nivel combinando cinta, hielo, agujero, caja frágil, llave, cerrojo y muros.
-6. Mostrar la pantalla de resumen y después la **pantalla final** con el **1UP** total.
+## 5. Nivel 4-2 Ecuador - Colombia
+1. Mensaje de inicio y loros en el cielo.
+2. Empujar cajas sobre la **cinta**: siguen la flecha de la cinta y cruzan la pared. El jugador no puede pisarla.
+3. Caja frágil, caja llave, cerrojo y muro. Terminar el nivel.
 
-## 7. Cierre (15 s)
-- Opcional: mostrar unos segundos la carpeta de niveles con un .txt abierto, para que se vea que los niveles se cargan desde archivos de texto.
-- Cerrar con el logo y el nombre del equipo.
+## 6. Nivel 4-3 Perú - Venezuela
+1. Mensaje de inicio del nivel final. Cascada del Salto Ángel, helicópteros y cóndor.
+2. El hielo lleva una caja al **portal** y sale por el portal del mismo color, en la misma dirección. La cinta la baja al destino.
+3. Resolver el nivel combinando todo: hielo, portal, cinta, agujero, caja frágil, llave, cerrojo y muro.
+4. Resumen, cierre **LOS REPARTIDORES** y **pantalla final** con el 1UP total.
+
+## Cierre (10 s)
+- "¡Gracias por ver!" con el equipo, la materia y el profesor. Los cuatro repartidores entregan sus cajas y festejan; "FIN DEL REPARTO".
 
 ---
 
-## Consejos para grabar
-- Preparar las soluciones de cada nivel antes de grabar, para no perder tiempo en el video.
-- Grabar cada nivel por separado y unirlos después.
-- Si una mecánica no se ve clara, agregar un texto corto en la edición (por ejemplo, "Undo: vuelve 5 movimientos").
-- Revisar la lista de control antes de exportar.
+## Notas
+- La grabación es automática: un script juega con las soluciones verificadas y deja cada pantalla el tiempo justo para leerla.
+- La ventana se agrandó para que el juego quede centrado con un marco negro alrededor (escala x2, sin perder nitidez).

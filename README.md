@@ -58,7 +58,7 @@ Para correr solo las verificaciones: `.\mvnw.cmd clean verify` (JUnit, Spotless 
 - `docs/diseno/`: decisiones del equipo (`Decisiones_MVP_TeMU_ExpressFinal.txt`, que prevalecen sobre el resto), diseño de niveles y patrones.
 - `docs/motor/`: funcionamiento del motor y formato de los niveles.
 - `docs/textos/mensajes_regionales.md`: mensajes de cada nivel y personajes.
-- `docs/video/guion_video.md`: guion del video de gameplay.
+- `docs/video/TeMU_Express_gameplay.mp4`: video de gameplay. Su guion está en `docs/video/guion_video.md`.
 - `docs/bocetos/`: bocetos de cada nivel.
 - `niveles/SOLUCIONES.md`: solución verificada de cada nivel y reglas de las mecánicas.
 

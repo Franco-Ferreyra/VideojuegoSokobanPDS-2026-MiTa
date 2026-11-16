@@ -106,8 +106,8 @@ PAR = solución × 1.2 redondeado arriba. 1-1 a 4-2 son óptimos en movimientos;
 
 ## 8. Qué falta para entregar
 
-- Grabar el video (guion en `docs/video/guion_video.md`).
-- Mandar el mail a jpepe@uade.edu.ar.
+- Video listo en `docs/video/TeMU_Express_gameplay.mp4` (guion en `docs/video/guion_video.md`); falta que lo aprueben los compañeros.
+- Mandar el mail a jpepe@uade.edu.ar (después de esa aprobación).
 - Ver la sección PENDIENTES de `docs/diseno/Decisiones_MVP_TeMU_ExpressFinal.txt`.
 
 ## 9. Herramientas auxiliares (fuera del repo, pueden no existir en otra sesión)
