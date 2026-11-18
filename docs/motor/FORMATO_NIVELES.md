@@ -49,29 +49,39 @@ Las cuatro filas de OBJETOS tienen **7 caracteres cada una**. Las filas 1, 3 y 4
 
 ## Símbolos del MVP
 
-| Capa | Símbolo | Significado | Motor de este entregable |
+| Capa | Símbolo | Significado | Motor |
 | --- | --- | --- | --- |
 | TERRENO | `#` | Pared | Implementado |
 | TERRENO | espacio | Piso | Implementado |
 | TERRENO | `.` | Destino | Implementado |
-| TERRENO | `L` | Cerrojo | Pendiente |
-| TERRENO | `W` | Muro inicialmente cerrado | Pendiente |
-| TERRENO | `O` | Agujero | Pendiente |
-| TERRENO | `~` | Hielo | Pendiente |
-| TERRENO | `>` `<` `^` `v` | Cinta y dirección | Pendiente |
-| TERRENO | `1` a `9` | Par de portales del mismo color | Pendiente |
+| TERRENO | `L` | Cerrojo | Implementado |
+| TERRENO | `W` | Muro inicialmente cerrado | Implementado |
+| TERRENO | `O` | Agujero | Implementado |
+| TERRENO | `~` | Hielo | Implementado |
+| TERRENO | `>` `<` `^` `v` | Cinta y dirección | Implementado |
+| TERRENO | `1` a `9` | Par de portales del mismo color | Implementado |
 | OBJETOS | espacio | Sin objeto | Implementado |
 | OBJETOS | `@` | Jugador | Implementado |
 | OBJETOS | `$` | Caja normal | Implementado |
-| OBJETOS | `F` | Caja frágil | Pendiente |
-| OBJETOS | `K` | Caja llave | Pendiente |
+| OBJETOS | `F` | Caja frágil (resistencia 4) | Implementado |
+| OBJETOS | `K` | Caja llave | Implementado |
 
-Los símbolos pendientes generan un error explícito; nunca se interpretan como piso o caja normal. El compañero puede diseñar los seis mapas con el alfabeto completo, pero su ejecución y verificación con este motor debe esperar a las mecánicas correspondientes.
+Cualquier otro símbolo genera un error explícito; nunca se interpreta como piso o caja normal. Las reglas de cada mecánica están al final de `niveles/SOLUCIONES.md`.
 
 ## Validaciones
 
-El Builder actual controla dimensiones, borde íntegro de paredes, un solo jugador, objetos sobre casillas transitables, al menos una caja normal y tantas cajas como destinos. El lector rechaza encabezados ausentes, duplicados, desconocidos, regiones/variantes inválidas, capas desiguales y símbolos desconocidos o pendientes. No demuestra que el nivel tenga solución.
+`LectorNivel` rechaza encabezados ausentes, duplicados o desconocidos, `PAR` que no sea un entero, marcadores faltantes o repetidos, capas de distinto tamaño o no rectangulares y símbolos desconocidos.
 
-Para los mapas completos del MVP, comprobar además lo acordado en Decisiones: normales + frágiles = destinos + agujeros; llaves = cerrojos; cada dígito de portal exactamente dos veces; destinos sin terrenos especiales; frágiles con resistencia 4 que se rompen al cuarto empuje. Estas validaciones y mecánicas adicionales todavía no están implementadas. Las dos capas evitan superponer dos terrenos en una misma casilla y permiten iniciar una caja o el jugador sobre un destino.
+`ConstructorNivelSokoban` controla:
+- `REGION` y `VARIANTE` válidas (tabla de arriba) y `PAR` no negativo.
+- Dimensiones de 3 a 13 columnas y de 3 a 7 filas, y el mapa rodeado de paredes.
+- Exactamente un jugador.
+- El jugador y las cajas arrancan solo sobre piso, destino o cerrojo: nunca sobre otra caja, pared, muro (arranca cerrado), agujero, hielo, cinta ni portal.
+- Al menos una caja normal o frágil, y normales + frágiles = destinos + agujeros.
+- Cajas llave = cerrojos, y muros solo si hay al menos un cerrojo.
+- Cada dígito de portal exactamente dos veces (un par).
+- Que cintas, hielo y portales no formen un ciclo.
+
+No demuestra que el nivel tenga solución: los seis mapas se verificaron aparte con un solucionador. Las dos capas evitan superponer dos terrenos en una misma casilla y permiten iniciar una caja o el jugador sobre un destino.
 
 `niveles/SOLUCIONES.md` queda a cargo de mapas: secuencia A/B/I/D, movimientos, empujes y PAR por nivel. La distribución de mecánicas y la zona tutorial de China se rigen por los puntos 5 y 6 de Decisiones.

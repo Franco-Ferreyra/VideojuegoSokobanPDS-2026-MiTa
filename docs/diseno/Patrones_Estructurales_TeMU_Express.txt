@@ -94,8 +94,11 @@ región y poner su música. Si el controlador conociera todos esos
 pasos y su orden, quedaría acoplado a los detalles de creación.
 
 Aplicación:
-PreparadorNivelFacade ofrece prepararNivel(numero), que devuelve el
-Nivel listo. ControladorJuego solo llama a la fachada.
+PreparadorNivelFacade (paquete controlador) ofrece
+prepararNivel(numero), que devuelve el Nivel listo, y después
+armarSprites(), getAnimacionFondo() y getCarpetaVoces() con lo que la
+vista necesita de la región. La fábrica no sale de la fachada:
+ControladorJuego solo llama a la fachada.
 
 Participantes:
   - Facade: PreparadorNivelFacade, con los atributos lector

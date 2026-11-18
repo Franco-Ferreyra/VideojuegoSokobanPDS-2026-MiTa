@@ -24,12 +24,12 @@ La clase principal es `temuexpress.Aplicacion`:
 Los nombres se tomaron de `docs/diagramas/TeMUExpress.mdj` y las reglas de `Decisiones_MVP_TeMU_ExpressFinal.txt`.
 
 - `modelo.nucleo`: `Nivel`, `Tablero`, `Celda`, `Posicion`, `Direccion`, los terrenos (`Piso`, `Pared`, `Destino`, `Cerrojo`, `Muro`, `Agujero`, `Hielo`, `Cinta`, `Portal`), las cajas (`CajaNormal`, `CajaFragil`, `CajaLlave`), `Partida`, `MementoPartida`, `EstadoCaja` e `HistorialPartida`.
-- `modelo.creacion`: `LectorNivel` dirige `ConstructorNivel` / `ConstructorNivelSokoban` (Builder). `CreadorCajaNormal`, `CreadorCajaFragil` y `CreadorCajaLlave` implementan Factory Method. `PreparadorNivelFacade` (Facade) lee el nivel y elige la fábrica regional.
+- `modelo.creacion`: `LectorNivel` dirige `ConstructorNivel` / `ConstructorNivelSokoban` (Builder). `CreadorCajaNormal`, `CreadorCajaFragil` y `CreadorCajaLlave` implementan Factory Method.
 - `modelo.estrategias`: `EstrategiaDesplazamientoCaja` con `EstrategiaNormal`, `EstrategiaResbaladiza`, `EstrategiaCinta` y `EstrategiaPortal` (Strategy). El terreno de entrada elige la estrategia; esta calcula el destino sin modificar el tablero. `Encadenamiento` aplica el efecto de la celda siguiente cuando una caja sigue de largo.
 - `modelo.observador`: `PublicadorPartida` y `ObservadorPartida` (Observer). `Partida` avisa cada acción con un `EventoPartidaDTO`.
 - `modelo.puntaje`: `PuntajeBase` y sus decoradores `BonusSinUndo`, `BonusPorPar` y `RecargoUndo` (Decorator).
 - `modelo.dto`: `TableroDTO` (ancho, alto y las dos capas como texto separado por `\n`), `EventoPartidaDTO` y `ResumenNivelDTO`, todos inmutables.
-- `controlador`: `ControladorJuego` recibe lo que hace el jugador en la vista (implementa `OyenteVista`) y maneja el flujo de los niveles. `PresentadorPartida` y `ReaccionAudioPartida` son los observadores que actualizan la vista y el sonido.
+- `controlador`: `ControladorJuego` recibe lo que hace el jugador en la vista (implementa `OyenteVista`) y maneja el flujo de los niveles. `PreparadorNivelFacade` (Facade) lee el nivel, elige la fábrica regional, pone la música y le da al controlador los sprites, el fondo animado y la carpeta de voces de la región. `PresentadorPartida` y `ReaccionAudioPartida` son los observadores que actualizan la vista y el sonido.
 - `recursos`: fábricas regionales (Abstract Factory), `GestorSonido` (Singleton) y el fondo animado.
 
 La vista usa el controlador y los DTO, sin tocar celdas ni administrar Mementos. `Nivel` entrega copias independientes de su estado inicial, así distintas partidas no comparten cajas ni posiciones. Las copias de `Tablero` sirven para aislar niveles; Undo y reinicio usan solo Memento.

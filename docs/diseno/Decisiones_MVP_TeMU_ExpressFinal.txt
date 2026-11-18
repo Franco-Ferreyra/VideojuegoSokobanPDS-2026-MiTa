@@ -178,12 +178,14 @@ Creacionales:
     variante (ARG-CHILE, ECU-COL, PERU-VEN). Productos:
       AspectoRepartidor: sprite del repartidor según la dirección.
       Escenario: fondo, pared, piso, destino y muros (cerrado y
-      abierto) de la región.
-      SonidoRegional: música de la región.
+      abierto) de la región, y el cielo animado (AnimacionFondo,
+      diagrama 10).
+      SonidoRegional: música de la región y carpeta de sus voces.
     Las cajas NO son regionales: el paquete TeMU es común.
-    Las voces y los mensajes de cada región no son productos de la
-    fábrica: las voces las reproduce GestorSonido (reproducirVoz) desde
-    assets/audio/voices/<región>, y los mensajes están en
+    Las voces las reproduce GestorSonido (reproducirVoz) desde la
+    carpeta que da SonidoRegional (assets/audio/voices/<región>).
+    Los mensajes de cada región no son productos de la fábrica: están
+    en MensajesRegionales (controlador), con base en
     docs/textos/mensajes_regionales.md.
   - Builder: ConstructorNivel / ConstructorNivelSokoban, dirigido por
     LectorNivel (diagrama 3). Producto: Nivel.
@@ -193,7 +195,11 @@ Estructurales:
   - Facade: PreparadorNivelFacade. prepararNivel(numero) coordina los
     subsistemas: LectorNivel (Builder), FabricaNivel (Abstract
     Factory) y GestorSonido (música de la región), y devuelve el
-    Nivel listo. El controlador solo llama a la fachada (diagrama 5).
+    Nivel listo. Después da lo que la vista necesita de la región
+    (armarSprites(), getAnimacionFondo() y getCarpetaVoces()) sin
+    exponer la fábrica. El controlador solo llama a la fachada
+    (diagrama 5). Está en el paquete controlador, así el modelo no
+    depende de recursos.
   - Bridge: solo documentado. Hay una única vista de juego con el mismo
     layout en todas las regiones; sin editor no existen dos dimensiones
     de variación. Se incorpora si se agrega el editor.
@@ -226,8 +232,8 @@ Comportamiento:
       controlador, según MVC de la Clase 6). Publisher: Partida.
 
 Arquitectura MVC (Clase 6): modelo (nucleo, creacion, estrategias,
-puntaje, observador), vista (Swing), controlador (ControladorJuego y
-observadores). La vista recibe DTO (EventoPartidaDTO, TableroDTO,
+puntaje, observador), vista (Swing), controlador (ControladorJuego,
+PreparadorNivelFacade y observadores). La vista recibe DTO (EventoPartidaDTO, TableroDTO,
 ResumenNivelDTO) y no contiene reglas del juego.
 
 

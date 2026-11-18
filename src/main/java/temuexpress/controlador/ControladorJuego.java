@@ -3,9 +3,7 @@ package temuexpress.controlador;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
-import temuexpress.modelo.creacion.PreparadorNivelFacade;
 import temuexpress.modelo.dto.EventoPartidaDTO;
 import temuexpress.modelo.dto.ResumenNivelDTO;
 import temuexpress.modelo.dto.TableroDTO;
@@ -19,12 +17,7 @@ import temuexpress.modelo.puntaje.BonusSinUndo;
 import temuexpress.modelo.puntaje.CalculadorPuntaje;
 import temuexpress.modelo.puntaje.PuntajeBase;
 import temuexpress.modelo.puntaje.RecargoUndo;
-import temuexpress.recursos.AspectoRepartidor;
-import temuexpress.recursos.Escenario;
-import temuexpress.recursos.FabricaNivel;
 import temuexpress.recursos.GestorSonido;
-import temuexpress.recursos.Imagenes;
-import temuexpress.vista.HojaSprites;
 import temuexpress.vista.OyenteVista;
 import temuexpress.vista.VentanaJuego;
 
@@ -37,9 +30,6 @@ import temuexpress.vista.VentanaJuego;
  */
 public final class ControladorJuego implements OyenteVista {
     private static final List<String> NIVELES = List.of("1-1", "2-1", "3-1", "4-1", "4-2", "4-3");
-
-    /** Cajas y mecánicas son iguales en todas las regiones: se toman de una sola carpeta. */
-    private static final String CARPETA_COMUN = "china/";
 
     private enum Paso {
         INICIO,
@@ -215,7 +205,10 @@ public final class ControladorJuego implements OyenteVista {
 
     // ---- Flujo de niveles ----
 
-    /** La fachada lee el nivel, elige la fábrica regional y pone la música. */
+    /**
+     * La fachada lee el nivel, elige la fábrica regional y pone la música; después da los sprites,
+     * el fondo animado y la carpeta de voces de la región. El controlador solo habla con ella.
+     */
     private void cargarNivel(int indice) {
         indiceNivel = indice;
         try {
@@ -223,10 +216,9 @@ public final class ControladorJuego implements OyenteVista {
         } catch (IOException e) {
             throw new UncheckedIOException("No se pudo leer el nivel " + NIVELES.get(indice), e);
         }
-        FabricaNivel fabrica = preparador.getFabricaActual();
-        carpetaVoces = fabrica.crearSonido().getCarpetaVoces();
-        ventana.setSprites(armarSprites(fabrica));
-        ventana.setAnimacionFondo(fabrica.crearEscenario().getAnimacion());
+        carpetaVoces = preparador.getCarpetaVoces();
+        ventana.setSprites(preparador.armarSprites());
+        ventana.setAnimacionFondo(preparador.getAnimacionFondo());
         partida.suscribir(new PresentadorPartida(ventana, this::getTableroDTO, nivel.getNumero()));
         ReaccionAudioPartida audio = new ReaccionAudioPartida(carpetaVoces);
         audio.precargar();
@@ -267,46 +259,5 @@ public final class ControladorJuego implements OyenteVista {
         CalculadorPuntaje calculador = new BonusPorPar(new BonusSinUndo(new PuntajeBase()));
         if ("4-1".equals(nivel.getNumero())) calculador = new RecargoUndo(calculador);
         return calculador;
-    }
-
-    /** Arma las imágenes de la vista con los productos de la fábrica regional. */
-    private static HojaSprites armarSprites(FabricaNivel fabrica) {
-        HojaSprites sprites = new HojaSprites();
-        Escenario escenario = fabrica.crearEscenario();
-        sprites.poner("fondo", escenario.getFondo());
-        sprites.poner("pared", escenario.getSpritePared());
-        sprites.poner("piso", escenario.getSpritePiso());
-        sprites.poner("destino", escenario.getSpriteDestino());
-        sprites.poner("muro_cerrado", escenario.getSpriteMuroCerrado());
-        sprites.poner("muro_abierto", escenario.getSpriteMuroAbierto());
-        AspectoRepartidor repartidor = fabrica.crearRepartidor();
-        for (Direccion dir : Direccion.values()) {
-            sprites.poner(
-                    "jugador_" + dir.name().toLowerCase(Locale.ROOT), repartidor.getSprite(dir));
-        }
-        sprites.poner("esqueleto", repartidor.getEsqueleto());
-        String[] comunes = {
-            "caja_normal",
-            "caja_llave",
-            "caja_fragil_1",
-            "caja_fragil_2",
-            "caja_fragil_3",
-            "caja_fragil_4",
-            "cerrojo",
-            "agujero",
-            "hielo",
-            "cinta_arriba",
-            "cinta_abajo",
-            "cinta_izquierda",
-            "cinta_derecha"
-        };
-        for (String clave : comunes) {
-            sprites.poner(clave, Imagenes.leer(CARPETA_COMUN + clave + ".png"));
-        }
-        for (int n = 1; n <= 9; n++) {
-            sprites.poner("portal_" + n, Imagenes.leer(CARPETA_COMUN + "portal_" + n + ".png"));
-        }
-        sprites.poner("logo", Imagenes.leer("logo.png"));
-        return sprites;
     }
 }

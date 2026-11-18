@@ -126,13 +126,13 @@ Diagrama: `docs/diagramas/png/0 - Paquetes MVC.png`.
 |---|---|---|
 | `modelo` | Reglas del juego. No conoce Swing. | Subpaquetes `nucleo`, `creacion`, `estrategias`, `puntaje`, `observador` y `dto` |
 | `vista` | Pantallas Swing. No contiene reglas. | `VentanaJuego`, tablero, HUD y pantallas de inicio, mensaje, juego, resumen, derrota y final |
-| `controlador` | Recibe flechas y botones, llama al modelo y maneja el flujo de los niveles. | `ControladorJuego`, `PresentadorPartida`, `ReaccionAudioPartida` y `MensajesRegionales` |
+| `controlador` | Recibe flechas y botones, llama al modelo y maneja el flujo de los niveles. | `ControladorJuego`, `PreparadorNivelFacade`, `PresentadorPartida`, `ReaccionAudioPartida` y `MensajesRegionales` |
 | `recursos` | Imágenes, audio y fondo animado por región. | Abstract Factory regional, `GestorSonido` y `FondoAnimado` |
 
 **Dependencias entre paquetes:**
 - `controlador` depende de `vista`, `modelo` y `recursos`.
 - `vista` depende de los DTO y de la interfaz `AnimacionFondo` de `recursos`. No conoce ninguna clase del modelo con reglas.
-- `modelo` depende de `recursos` solo en la fachada, para elegir la fábrica regional y la música.
+- `modelo` no depende de `vista`, `controlador` ni `recursos`, igual que el modelo del Casino de la Clase 6.
 
 La vista nunca toca el modelo: recibe DTO inmutables. Por eso se puede cambiar la interfaz sin tocar las reglas, y probar las reglas sin abrir una ventana (las 37 pruebas corren sin Swing).
 
@@ -163,7 +163,7 @@ Diagrama: `docs/diagramas/png/1 - Núcleo del modelo.png`.
 - **`Caja`** es una interfaz implementada por `CajaNormal`, `CajaFragil` y `CajaLlave`, con los métodos `estaEntregada()`, `alSerEmpujada()`, `estaRota()` y `getTipo()`.
 - **Tipos de apoyo:** `Posicion` es un valor inmutable con `siguiente(dir)`, `Direccion` es un enum de las 4 flechas y `TipoCaja` es otro enum. `Portal` guarda la `Posicion` de su pareja.
 
-Gracias al polimorfismo, `Partida` no tiene un `switch` por tipo de terreno ni de caja.
+Gracias al polimorfismo, el recorrido de la caja (la estrategia de cada terreno), quién puede pasar por cada casilla (`esTransitablePorJugador()`, `esTransitablePorCaja()`) y la entrega (`estaEntregada()` de cada caja) se resuelven sin condicionales en `Partida`. `Partida` solo consulta el tipo concreto en estados propios de algunos terrenos y cajas: tapar agujeros, abrir y cerrar muros, la resistencia de la caja frágil para el `TableroDTO` y el tipo de empuje que se informa al sonido.
 
 ## 6. Patrones de diseño
 
@@ -235,7 +235,8 @@ La justificación de cada patrón sigue a Shvets, *Dive Into Design Patterns*: p
   - `FabricaNivel`, la Abstract Factory, elegida según la región del nivel.
   - `GestorSonido`, que pone la música de la región.
 
-  Con eso devuelve el `Nivel` listo, y el controlador obtiene la familia regional con `getFabricaActual()` para armar los sprites, el fondo animado y las voces.
+  Con eso devuelve el `Nivel` listo. Después le da al controlador lo que la vista necesita de esa región: `armarSprites()`, `getAnimacionFondo()` y `getCarpetaVoces()`. La fábrica nunca sale de la fachada, así que el controlador solo habla con ella (Shvets: el cliente usa la fachada en lugar de llamar a los subsistemas; Clase 11, `FachadaMercader`).
+- **Ubicación:** está en el paquete `controlador`, porque coordina recursos (fábrica y audio) y arma las imágenes de la vista. Así el modelo no depende de `recursos`.
 
 ### 6.5 Strategy - desplazamiento de cajas (diagrama 6)
 
@@ -244,7 +245,7 @@ La justificación de cada patrón sigue a Shvets, *Dive Into Design Patterns*: p
   - Cada `Terreno` devuelve su estrategia con `getEstrategia()`.
   - El contexto es `Partida`, que al empujar usa la estrategia del terreno al que entra la caja.
   - Los efectos se encadenan con la clase de apoyo `Encadenamiento`: cuando una caja sigue de largo (hielo, cinta o portal), le pide a la casilla siguiente su propia estrategia. Los ciclos se descartan al cargar el nivel.
-- **Justificación:** agregar un terreno con otro recorrido es agregar una estrategia, sin tocar `Partida`. La estrategia se elige por el terreno, no por el país.
+- **Justificación:** agregar un terreno con otro recorrido es agregar su clase y su estrategia, sin tocar el cálculo del recorrido en `Partida`. La estrategia se elige por el terreno, no por el país.
 
 ### 6.6 Memento - Undo y Reiniciar (diagrama 7)
 
@@ -306,7 +307,7 @@ Hay una sola vista de juego con el mismo layout en todas las regiones. Sin un ed
 | Principio | Ejemplo concreto en el diseño |
 |---|---|
 | **S** - Responsabilidad única | `HistorialPartida` solo guarda mementos; `LectorNivel` solo interpreta el TXT; `GestorSonido` solo reproduce audio; `MensajesRegionales` solo tiene los textos; la vista solo dibuja DTO. |
-| **O** - Abierto/cerrado | Un terreno nuevo se agrega con su clase `Terreno` y su estrategia, sin tocar `Partida`. Un bonus nuevo es otro decorador. Una región nueva es otra fábrica. Un efecto del fondo es otra `Capa`. |
+| **O** - Abierto/cerrado | Un terreno con otro recorrido se agrega con su clase `Terreno` y su estrategia, sin tocar el cálculo del recorrido en `Partida`. Un bonus nuevo es otro decorador. Una región nueva es otra fábrica. Un efecto del fondo es otra `Capa`. |
 | **L** - Sustitución de Liskov | `Partida` trata cualquier `Caja` o `Terreno` por su interfaz: una `CajaFragil` se empuja igual que una `CajaNormal`. |
 | **I** - Segregación de interfaces | Los contratos son chicos y específicos: `ObservadorPartida` tiene un solo método, separado de `PublicadorPartida`; `CalculadorPuntaje` y `Capa` también tienen uno solo; `OyenteVista` y `VistaPartida` separan lo que la vista avisa de lo que muestra. |
 | **D** - Inversión de dependencias | `Partida` depende de `ObservadorPartida` y de `EstrategiaDesplazamientoCaja`, no de las clases concretas. `LectorNivel` depende de `ConstructorNivel` y `CreadorCaja`. El controlador y la vista se hablan por `OyenteVista` y `VistaPartida`. |
@@ -322,7 +323,7 @@ Además se aplicaron los principios generales de Shvets: **encapsular lo que var
 | **Controlador** | `ControladorJuego` recibe los eventos del sistema (flechas, UNDO, REINICIAR y ENTER) y los delega al modelo. |
 | **Bajo acoplamiento** | La vista solo conoce DTO e interfaces. Observer evita que el modelo conozca Swing. La fachada oculta los subsistemas de carga. |
 | **Alta cohesión** | Cada paquete del modelo agrupa una sola cosa: núcleo, creación, estrategias, puntaje u observador. |
-| **Polimorfismo** | Terrenos y cajas resuelven su propio comportamiento, sin `switch` por tipo. |
+| **Polimorfismo** | Cada terreno resuelve su recorrido (estrategia) y si se puede pasar; cada caja, si está entregada y si está rota. |
 | **Fabricación pura** | `HistorialPartida`, `LectorNivel`, `GestorSonido` y `Encadenamiento` no representan algo del dominio; existen para mantener la cohesión. |
 | **Indirección** | `PreparadorNivelFacade` media entre el controlador y los subsistemas. `PresentadorPartida` media entre el modelo y la vista. |
 | **Variaciones protegidas** | Las interfaces `Terreno`, `Caja`, `EstrategiaDesplazamientoCaja`, `FabricaNivel` y `AnimacionFondo` protegen al resto del diseño de los cambios en sus implementaciones. |
